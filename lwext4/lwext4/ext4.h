@@ -260,6 +260,8 @@ int ext4_cache_write_back(const char *path, bool on);
  * @return  standard error code */
 int ext4_fremove(const char *path);
 
+int ext4_frename(const char *path, const char *new_path);
+
 /**@brief   File open function.
  * @param   filename, (has to start from mount point)
  *          /my_partition/my_file

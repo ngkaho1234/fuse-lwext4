@@ -632,7 +632,6 @@ int ext4_fs_alloc_inode(struct ext4_fs *fs, struct ext4_inode_ref *inode_ref,
         mode = 0777;
         mode |= EXT4_INODE_MODE_DIRECTORY;
         ext4_inode_set_mode(&fs->sb, inode, mode);
-        ext4_inode_set_links_count(inode, 0);
     } else {
         /*
          * Default file permissions to be compatible with other systems
@@ -642,9 +641,9 @@ int ext4_fs_alloc_inode(struct ext4_fs *fs, struct ext4_inode_ref *inode_ref,
         mode = 0666;
         mode |= EXT4_INODE_MODE_FILE;
         ext4_inode_set_mode(&fs->sb, inode, mode);
-        ext4_inode_set_links_count(inode, 1);
     }
 
+    ext4_inode_set_links_count(inode, 0);
     ext4_inode_set_uid(inode, 0);
     ext4_inode_set_gid(inode, 0);
     ext4_inode_set_size(inode, 0);

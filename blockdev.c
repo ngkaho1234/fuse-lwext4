@@ -110,7 +110,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 void blockdev_put(struct ext4_blockdev *bdev)
 {
     __blockdev_put(((struct block_dev *)bdev)->fd);
-    free(bdev);
+    FREE_BDEV(bdev);
 }
 
 static int blockdev_open(struct ext4_blockdev *bdev)

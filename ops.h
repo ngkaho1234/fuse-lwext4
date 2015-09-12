@@ -74,4 +74,6 @@ int op_mkdir(const char *path, mode_t mode);
 int op_rmdir(const char *path);
 int op_unlink(const char *path);
 
+int op_rename(const char *path, const char *new_path);
+
 #endif

@@ -8,18 +8,19 @@
  */
 
 
-#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <string.h>
+#include <errno.h>
 
-#include "logging.h"
 #include "ops.h"
+#include "logging.h"
 
-void *op_init(struct fuse_conn_info *info)
+int op_rename(const char *path, const char *new_path)
 {
     int rc;
-    struct ext4_blockdev *bdev = get_current_blockdev();
-    rc = ext4_device_register(bdev, NULL, "ext4_fs");
-    assert(rc == EOK);
-    rc = ext4_mount("ext4_fs", "/");
-    assert(rc == EOK);
-    return bdev;
+
+    rc = ext4_frename(path, new_path);
+    return -rc;
 }
+

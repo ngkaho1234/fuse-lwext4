@@ -16,8 +16,7 @@
 void op_destroy(void *ctx)
 {
     int rc;
-    struct fuse_context *context = (struct fuse_context *)ctx;
-    struct ext4_blockdev *bdev = (struct ext4_blockdev *)context->private_data;
+    struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
     rc = ext4_umount("/");
     assert(rc == EOK);
     blockdev_put(bdev);
