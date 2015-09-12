@@ -286,16 +286,9 @@ static int ext4_unlink(struct ext4_mountpoint *mp,
      * ext4_inode_set_change_inode_time(child_inode_ref->inode,
      *     (uint32_t) now);
      */
-    if (is_dir) {
-        if (ext4_inode_get_links_count(child_inode_ref->inode) == 2) {
-            ext4_inode_set_links_count(child_inode_ref->inode, 0);
-            child_inode_ref->dirty = true;
-        }
-    } else {
-        if (ext4_inode_get_links_count(child_inode_ref->inode)) {
-            ext4_fs_inode_links_count_dec(child_inode_ref);
-            child_inode_ref->dirty = true;
-        }
+    if (ext4_inode_get_links_count(child_inode_ref->inode)) {
+        ext4_fs_inode_links_count_dec(child_inode_ref);
+        child_inode_ref->dirty = true;
     }
 
     return EOK;
@@ -1171,11 +1164,6 @@ int ext4_frename(const char *path, const char *new_path)
     if (r != EOK)
         goto Finish;
 
-    if (!ext4_inode_get_links_count(inode_ref.inode)) {
-        ext4_inode_set_links_count(inode_ref.inode, 2);
-        inode_ref.dirty = true;
-    }
-
     r = __ext4_create_hardlink(new_path, &inode_ref);
     if (r != EOK)
         r = __ext4_create_hardlink(path, &inode_ref);
@@ -1984,8 +1972,10 @@ int ext4_dir_rm(const char *path)
                     break;
                 }
 
-                if (!ext4_inode_get_links_count(child.inode)) {
+                if (ext4_inode_get_links_count(child.inode) == 2) {
                     ext4_inode_set_deletion_time(child.inode, 0xFFFFFFFF);
+                    ext4_inode_set_links_count(child.inode, 0);
+                    child.dirty = true;
                     /*Turncate*/
                     r = ext4_fs_truncate_inode(&child, 0);
                     if (r != EOK) {
@@ -2033,8 +2023,10 @@ int ext4_dir_rm(const char *path)
                     goto End;
                 }
 
-                if (!ext4_inode_get_links_count(current.inode)) {
+                if (ext4_inode_get_links_count(current.inode) == 2) {
                     ext4_inode_set_deletion_time(current.inode, 0xFFFFFFFF);
+                    ext4_inode_set_links_count(current.inode, 0);
+                    current.dirty = true;
                     /*Turncate*/
                     r = ext4_fs_truncate_inode(&current, 0);
                     if (r != EOK) {
