@@ -1285,11 +1285,6 @@ int ext4_fs_append_inode_block(struct ext4_inode_ref *inode_ref,
 void ext4_fs_inode_links_count_inc(struct ext4_inode_ref *inode_ref)
 {
     uint16_t link;
-    if (!ext4_inode_is_type(&inode_ref->fs->sb, inode_ref->inode,
-                            EXT4_INODE_MODE_DIRECTORY)) {
-        ext4_inode_set_links_count(inode_ref->inode, 0);
-        return;
-    }
 
     link = ext4_inode_get_links_count(inode_ref->inode);
     link++;
@@ -1312,13 +1307,13 @@ void ext4_fs_inode_links_count_inc(struct ext4_inode_ref *inode_ref)
 
 void ext4_fs_inode_links_count_dec(struct ext4_inode_ref *inode_ref)
 {
+    uint16_t links = ext4_inode_get_links_count(inode_ref->inode);
     if (!ext4_inode_is_type(&inode_ref->fs->sb, inode_ref->inode,
                             EXT4_INODE_MODE_DIRECTORY)) {
-        ext4_inode_set_links_count(inode_ref->inode, 0);
+        if (links > 0)
+            ext4_inode_set_links_count(inode_ref->inode, links - 1);
         return;
     }
-
-    uint16_t links = ext4_inode_get_links_count(inode_ref->inode);
 
     if (links > 2)
         ext4_inode_set_links_count(inode_ref->inode, links - 1);

@@ -231,6 +231,26 @@ static int ext4_link(struct ext4_mountpoint *mp, struct ext4_inode_ref *parent,
     } else {
         if (ext4_inode_is_type(&mp->fs.sb, child->inode,
                                EXT4_INODE_MODE_DIRECTORY)) {
+            /* FIXME: SO TRICKY. */
+            int has_flag_index =
+                    ext4_inode_has_flag(child->inode, EXT4_INODE_FLAG_INDEX);
+            struct ext4_directory_search_result result;
+            if (has_flag_index)
+                ext4_inode_clear_flag(child->inode, EXT4_INODE_FLAG_INDEX);
+
+            rc = ext4_dir_find_entry(&result, child, "..", strlen(".."));
+            if (has_flag_index)
+                ext4_inode_set_flag(child->inode, EXT4_INODE_FLAG_INDEX);
+
+            if (rc != EOK)
+                return EIO;
+
+            ext4_dir_entry_ll_set_inode(result.dentry, parent->index);
+            result.block.dirty = true;
+            rc = ext4_dir_destroy_result(child, &result);
+            if (rc != EOK)
+                return rc;
+
             ext4_fs_inode_links_count_inc(parent);
             parent->dirty = true;
         } else {
@@ -239,7 +259,7 @@ static int ext4_link(struct ext4_mountpoint *mp, struct ext4_inode_ref *parent,
         }
     }
 
-    return EOK;
+    return rc;
 }
 
 static int ext4_unlink(struct ext4_mountpoint *mp,
@@ -541,8 +561,12 @@ static bool ext4_parse_flags(const char *flags, uint32_t *file_flags)
     return false;
 }
 
+/*
+ * NOTICE: if filetype is equal to EXT4_DIRECTORY_FILETYPE_UNKNOWN,
+ * any filetype of the target dir entry will be accepted.
+ */
 static int ext4_generic_open2(ext4_file *f, const char *path, int flags,
-                             bool file_expect, uint32_t *parent_inode,
+                             int filetype, uint32_t *parent_inode,
                              uint32_t *name_off)
 {
     bool is_goal = false;
@@ -584,7 +608,8 @@ static int ext4_generic_open2(ext4_file *f, const char *path, int flags,
 
         if (!len) {
             /*If root open was request.*/
-            if (is_goal && !file_expect)
+            if (is_goal && ((filetype == EXT4_DIRECTORY_FILETYPE_DIR)
+                            || (filetype == EXT4_DIRECTORY_FILETYPE_UNKNOWN)))
                 break;
 
             r = ENOENT;
@@ -603,7 +628,9 @@ static int ext4_generic_open2(ext4_file *f, const char *path, int flags,
             /*O_CREAT allows create new entry*/
             struct ext4_inode_ref child_ref;
             r = ext4_fs_alloc_inode(&mp->fs, &child_ref,
-                                    is_goal ? !file_expect : true);
+                                    is_goal
+                                      ? (filetype == EXT4_DIRECTORY_FILETYPE_DIR)
+                                      : true);
             if (r != EOK)
                 break;
 
@@ -639,162 +666,16 @@ static int ext4_generic_open2(ext4_file *f, const char *path, int flags,
             break;
 
         /*If expected file error*/
-        if ((inode_type == EXT4_DIRECTORY_FILETYPE_REG_FILE) && !file_expect &&
-            is_goal) {
+        if (inode_type != EXT4_DIRECTORY_FILETYPE_DIR && !is_goal) {
             r = ENOENT;
             break;
         }
-
-        /*If expected directory error*/
-        if ((inode_type == EXT4_DIRECTORY_FILETYPE_DIR) && file_expect &&
-            is_goal) {
-            r = ENOENT;
-            break;
-        }
-
-        r = ext4_fs_put_inode_ref(&ref);
-        if (r != EOK)
-            break;
-
-        r = ext4_fs_get_inode_ref(&mp->fs, next_inode, &ref);
-        if (r != EOK)
-            break;
-
-        if (is_goal)
-            break;
-
-        path += len + 1;
-
-        if (name_off)
-            *name_off += len + 1;
-    };
-
-    if (r != EOK) {
-        ext4_fs_put_inode_ref(&ref);
-        return r;
-    }
-
-    if (is_goal) {
-
-        if ((f->flags & O_TRUNC) &&
-            (inode_type == EXT4_DIRECTORY_FILETYPE_REG_FILE)) {
-
-            r = ext4_fs_truncate_inode(&ref, 0);
-            if (r != EOK) {
-                ext4_fs_put_inode_ref(&ref);
-                return r;
+        if (filetype != EXT4_DIRECTORY_FILETYPE_UNKNOWN) {
+            if ((inode_type != filetype) && is_goal) {
+                r = ENOENT;
+                break;
             }
         }
-
-        f->mp = mp;
-        f->fsize = ext4_inode_get_size(&f->mp->fs.sb, ref.inode);
-        f->inode = ref.index;
-        f->fpos = 0;
-
-        if (f->flags & O_APPEND)
-            f->fpos = f->fsize;
-    }
-
-    r = ext4_fs_put_inode_ref(&ref);
-    return r;
-}
-
-static int ext4_generic_open_internal(ext4_file *f, const char *path, int flags,
-                             uint32_t *parent_inode,
-                             uint32_t *name_off)
-{
-    bool is_goal = false;
-    uint8_t inode_type = EXT4_DIRECTORY_FILETYPE_DIR;
-    uint32_t next_inode;
-
-    int r;
-    struct ext4_mountpoint *mp = ext4_get_mount(path);
-    struct ext4_directory_search_result result;
-    struct ext4_inode_ref ref;
-
-    f->mp = 0;
-
-    if (!mp)
-        return ENOENT;
-
-    f->flags = flags;
-
-    /*Skip mount point*/
-    path += strlen(mp->name);
-
-    if (name_off)
-        *name_off = strlen(mp->name);
-
-    /*Load root*/
-    r = ext4_fs_get_inode_ref(&mp->fs, EXT4_INODE_ROOT_INDEX, &ref);
-
-    if (r != EOK)
-        return r;
-
-    if (parent_inode)
-        *parent_inode = ref.index;
-
-    int len = ext4_path_check(path, &is_goal);
-
-    while (1) {
-
-        len = ext4_path_check(path, &is_goal);
-
-        if (!len) {
-            /*If root open was request.*/
-            if (is_goal)
-                break;
-
-            r = ENOENT;
-            break;
-        }
-
-        r = ext4_dir_find_entry(&result, &ref, path, len);
-        if (r != EOK) {
-
-            if (r != ENOENT)
-                break;
-
-            if (!(f->flags & O_CREAT))
-                break;
-
-            /*O_CREAT allows create new entry*/
-            struct ext4_inode_ref child_ref;
-            r = ext4_fs_alloc_inode(&mp->fs, &child_ref,
-                                    false);
-            if (r != EOK)
-                break;
-
-            /*Destroy last result*/
-            ext4_dir_destroy_result(&ref, &result);
-
-            /*Link with root dir.*/
-            r = ext4_link(mp, &ref, &child_ref, path, len);
-            if (r != EOK) {
-                /*Fail. Free new inode.*/
-                ext4_fs_free_inode(&child_ref);
-                /*We do not want to write new inode.
-                  But block has to be released.*/
-                child_ref.dirty = false;
-                ext4_fs_put_inode_ref(&child_ref);
-                break;
-            }
-
-            ext4_fs_put_inode_ref(&child_ref);
-
-            continue;
-        }
-
-        if (parent_inode)
-            *parent_inode = ref.index;
-
-        next_inode = result.dentry->inode;
-        inode_type =
-            ext4_dir_entry_ll_get_inode_type(&mp->fs.sb, result.dentry);
-
-        r = ext4_dir_destroy_result(&ref, &result);
-        if (r != EOK)
-            break;
 
         r = ext4_fs_put_inode_ref(&ref);
         if (r != EOK)
@@ -849,159 +730,18 @@ static int ext4_generic_open(ext4_file *f, const char *path, const char *flags,
                              bool file_expect, uint32_t *parent_inode,
                              uint32_t *name_off)
 {
-    bool is_goal = false;
-    uint8_t inode_type = EXT4_DIRECTORY_FILETYPE_DIR;
-    uint32_t next_inode;
-
-    int r;
-    struct ext4_mountpoint *mp = ext4_get_mount(path);
-    struct ext4_directory_search_result result;
-    struct ext4_inode_ref ref;
-
-    f->mp = 0;
-
-    if (!mp)
-        return ENOENT;
-
-    if (ext4_parse_flags(flags, &f->flags) == false)
+    uint32_t iflags;
+    int filetype;
+    if (ext4_parse_flags(flags, &iflags) == false)
         return EINVAL;
 
-    /*Skip mount point*/
-    path += strlen(mp->name);
+    if (file_expect == true)
+        filetype = EXT4_DIRECTORY_FILETYPE_REG_FILE;
+    else
+        filetype = EXT4_DIRECTORY_FILETYPE_DIR;
 
-    if (name_off)
-        *name_off = strlen(mp->name);
-
-    /*Load root*/
-    r = ext4_fs_get_inode_ref(&mp->fs, EXT4_INODE_ROOT_INDEX, &ref);
-
-    if (r != EOK)
-        return r;
-
-    if (parent_inode)
-        *parent_inode = ref.index;
-
-    int len = ext4_path_check(path, &is_goal);
-
-    while (1) {
-
-        len = ext4_path_check(path, &is_goal);
-
-        if (!len) {
-            /*If root open was request.*/
-            if (is_goal && !file_expect)
-                break;
-
-            r = ENOENT;
-            break;
-        }
-
-        r = ext4_dir_find_entry(&result, &ref, path, len);
-        if (r != EOK) {
-
-            if (r != ENOENT)
-                break;
-
-            if (!(f->flags & O_CREAT))
-                break;
-
-            /*O_CREAT allows create new entry*/
-            struct ext4_inode_ref child_ref;
-            r = ext4_fs_alloc_inode(&mp->fs, &child_ref,
-                                    is_goal ? !file_expect : true);
-            if (r != EOK)
-                break;
-
-            /*Destroy last result*/
-            ext4_dir_destroy_result(&ref, &result);
-
-            /*Link with root dir.*/
-            r = ext4_link(mp, &ref, &child_ref, path, len);
-            if (r != EOK) {
-                /*Fail. Free new inode.*/
-                ext4_fs_free_inode(&child_ref);
-                /*We do not want to write new inode.
-                  But block has to be released.*/
-                child_ref.dirty = false;
-                ext4_fs_put_inode_ref(&child_ref);
-                break;
-            }
-
-            ext4_fs_put_inode_ref(&child_ref);
-
-            continue;
-        }
-
-        if (parent_inode)
-            *parent_inode = ref.index;
-
-        next_inode = result.dentry->inode;
-        inode_type =
-            ext4_dir_entry_ll_get_inode_type(&mp->fs.sb, result.dentry);
-
-        r = ext4_dir_destroy_result(&ref, &result);
-        if (r != EOK)
-            break;
-
-        /*If expected file error*/
-        if ((inode_type == EXT4_DIRECTORY_FILETYPE_REG_FILE) && !file_expect &&
-            is_goal) {
-            r = ENOENT;
-            break;
-        }
-
-        /*If expected directory error*/
-        if ((inode_type == EXT4_DIRECTORY_FILETYPE_DIR) && file_expect &&
-            is_goal) {
-            r = ENOENT;
-            break;
-        }
-
-        r = ext4_fs_put_inode_ref(&ref);
-        if (r != EOK)
-            break;
-
-        r = ext4_fs_get_inode_ref(&mp->fs, next_inode, &ref);
-        if (r != EOK)
-            break;
-
-        if (is_goal)
-            break;
-
-        path += len + 1;
-
-        if (name_off)
-            *name_off += len + 1;
-    };
-
-    if (r != EOK) {
-        ext4_fs_put_inode_ref(&ref);
-        return r;
-    }
-
-    if (is_goal) {
-
-        if ((f->flags & O_TRUNC) &&
-            (inode_type == EXT4_DIRECTORY_FILETYPE_REG_FILE)) {
-
-            r = ext4_fs_truncate_inode(&ref, 0);
-            if (r != EOK) {
-                ext4_fs_put_inode_ref(&ref);
-                return r;
-            }
-        }
-
-        f->mp = mp;
-        f->fsize = ext4_inode_get_size(&f->mp->fs.sb, ref.inode);
-        f->inode = ref.index;
-        f->fpos = 0;
-
-        if (f->flags & O_APPEND)
-            f->fpos = f->fsize;
-    }
-
-    r = ext4_fs_put_inode_ref(&ref);
-    return r;
+    return ext4_generic_open2(f, path, iflags, filetype,
+                              parent_inode, name_off);
 }
 
 static int __ext4_create_hardlink(const char *path,
@@ -1111,7 +851,9 @@ static int __ext4_get_inode_ref_remove_hardlink(const char *path, struct ext4_in
     if (!mp)
         return ENOENT;
 
-    r = ext4_generic_open_internal(&f, path, O_RDONLY, &parent_inode, &name_off);
+    r = ext4_generic_open2(&f, path, O_RDONLY,
+                           EXT4_DIRECTORY_FILETYPE_UNKNOWN,
+                           &parent_inode, &name_off);
     if (r != EOK)
         return r;
 
@@ -1319,13 +1061,19 @@ int ext4_fopen2(ext4_file *f, const char *path, int flags, bool file_expect)
 {
     struct ext4_mountpoint *mp = ext4_get_mount(path);
     int r;
+    int filetype;
 
     if (!mp)
         return ENOENT;
 
+    if (file_expect == true)
+        filetype = EXT4_DIRECTORY_FILETYPE_REG_FILE;
+    else
+        filetype = EXT4_DIRECTORY_FILETYPE_DIR;
+
     EXT4_MP_LOCK(mp);
     ext4_block_cache_write_back(mp->fs.bdev, 1);
-    r = ext4_generic_open2(f, path, flags, file_expect, 0, 0);
+    r = ext4_generic_open2(f, path, flags, filetype, 0, 0);
     ext4_block_cache_write_back(mp->fs.bdev, 0);
     EXT4_MP_UNLOCK(mp);
     return r;
