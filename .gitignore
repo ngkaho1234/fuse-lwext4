@@ -4,3 +4,4 @@ ext4fuse
 *.o
 .*.swp
 /test/logs
+lwext4/build_generic/
