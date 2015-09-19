@@ -39,7 +39,7 @@
 
 #if defined(__linux__)
 #include <linux/fs.h>
-#elif defined(__APPLE__) && (__MACH__)
+#elif defined(__APPLE__)
 #include <sys/disk.h>
 #endif
 
@@ -102,13 +102,13 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 #if defined(__linux__)
     ioctl(dev_file, BLKGETSIZE64, &block_cnt);
     block_cnt /= EXT4_BLOCKDEV_BSIZE;
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) 
     ioctl(dev_file, DKIOCGETBLOCKCOUNT, &block_cnt);
 #else
     block_cnt = lseek(dev_file, 0, SEEK_END) / EXT4_BLOCKDEV_BSIZE;
-    bdev->bdev.ph_bcnt = block_cnt;
     lseek(dev_file, 0, SEEK_SET);
 #endif
+    bdev->bdev.ph_bcnt = block_cnt;
     bdev->bdev.ph_bbuf = bdev->block_buf;
 
     bdev->bdev.open = blockdev_open;
