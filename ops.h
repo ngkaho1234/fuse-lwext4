@@ -73,8 +73,14 @@ int op_getattr(const char *path, struct stat *stbuf);
 
 int op_mkdir(const char *path, mode_t mode);
 int op_rmdir(const char *path);
+int op_link(const char *path, const char *hardlink_path);
 int op_unlink(const char *path);
+int op_symlink(const char *path, const char *target);
+int op_readlink(const char *path, char *buf, size_t bufsiz);
 
 int op_rename(const char *path, const char *new_path);
+
+int op_chmod(const char *path, mode_t mode);
+int op_chown(const char *path, uid_t uid, gid_t gid);
 
 #endif

@@ -9,9 +9,27 @@
 
 
 #include <stdlib.h>
+#include <pthread.h>
 
 #include "logging.h"
 #include "ops.h"
+
+static pthread_mutex_t mp_mutex = PTHREAD_MUTEX_INITIALIZER;
+
+static void mp_lock()
+{
+        pthread_mutex_lock(&mp_mutex);
+}
+
+static void mp_unlock()
+{
+        pthread_mutex_unlock(&mp_mutex);
+}
+
+static struct ext4_lock mp_lock_func = {
+        .lock        = mp_lock,
+        .unlock      = mp_unlock
+};
 
 void *op_init(struct fuse_conn_info *info)
 {
@@ -21,5 +39,6 @@ void *op_init(struct fuse_conn_info *info)
     assert(rc == EOK);
     rc = ext4_mount("ext4_fs", "/");
     assert(rc == EOK);
+    ext4_mount_setup_locks("/", &mp_lock_func);
     return bdev;
 }

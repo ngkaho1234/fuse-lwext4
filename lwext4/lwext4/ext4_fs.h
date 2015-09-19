@@ -140,6 +140,12 @@ int ext4_fs_get_inode_ref(struct ext4_fs *fs, uint32_t index,
  */
 int ext4_fs_put_inode_ref(struct ext4_inode_ref *ref);
 
+/**@brief Reset blocks field of i-node.
+ * @param fs        Filesystem to reset blocks field of i-inode on
+ * @param inode_ref ref Pointer for inode to be operated on
+ */
+void ext4_fs_inode_blocks_init(struct ext4_fs *fs, struct ext4_inode_ref *inode_ref);
+
 /**@brief Allocate new i-node in the filesystem.
  * @param fs        Filesystem to allocated i-node on
  * @param inode_ref Output pointer to return reference to allocated i-node

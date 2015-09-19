@@ -45,8 +45,13 @@ static struct fuse_operations e4f_ops = {
     .getattr    = op_getattr,
     .mkdir      = op_mkdir,
     .rmdir      = op_rmdir,
+    .link       = op_link,
     .unlink     = op_unlink,
     .rename     = op_rename,
+    .chmod      = op_chmod,
+    .chown      = op_chown,
+    .symlink    = op_symlink,
+    .readlink   = op_readlink,
 };
 
 static struct e4f {

@@ -14,16 +14,7 @@
 
 #include "ops.h"
 
-int op_readlink(const char *path, char *buf, size_t bufsiz)
+int op_link(const char *path, const char *hardlink_path)
 {
-    int r;
-    ext4_file f;
-    uint32_t size_ret;
-    r = ext4_fopen_all(&f, path, O_RDONLY);
-    if (r != EOK)
-        return -r;
-
-    r = ext4_fread(&f, buf, bufsiz, &size_ret);
-    ext4_fclose(&f);
-    return size_ret;
+    return -ext4_flink(path, hardlink_path);
 }

@@ -260,6 +260,22 @@ int ext4_cache_write_back(const char *path, bool on);
  * @return  standard error code */
 int ext4_fremove(const char *path);
 
+/**@brief   Create symlink against target
+ * @param   path path to file
+ * @param   target path to target
+ * @return  standard error code */
+int ext4_fsymlink(const char *path, const char *target);
+
+/**@brief   create a hardlink for a file.
+ * @param   path path to file
+ * @param   hardlink_path path of hardlink
+ * @return  standard error code */
+int ext4_flink(const char *path, const char *hardlink_path);
+
+/**@brief   Rename a file.
+ * @param   path path to file
+ * @param   new_path new path to file
+ * @return  standard error code */
 int ext4_frename(const char *path, const char *new_path);
 
 /**@brief   File open function.
@@ -283,6 +299,7 @@ int ext4_frename(const char *path, const char *new_path);
  * @return  standard error code*/
 int ext4_fopen(ext4_file *f, const char *path, const char *flags);
 int ext4_fopen2(ext4_file *f, const char *path, int flags, bool file_expect);
+int ext4_fopen_all(ext4_file *f, const char *path, int flags);
 
 /**@brief   File close function.
  * @param   f file handle

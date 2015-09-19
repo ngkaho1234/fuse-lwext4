@@ -23,7 +23,7 @@ endif
 
 BINARY = ext4fuse
 SOURCES += fuse-main.o logging.o blockdev.c
-SOURCES += op_read.o op_init.o op_destroy.o op_open.o op_create.o op_release.o op_write.o op_truncate.o op_opendir.o op_readdir.o op_releasedir.o op_getattr.o op_mkdir.o op_rmdir.o op_unlink.o op_rename.o lwext4/build_generic/lwext4/liblwext4.a
+SOURCES += op_read.o op_init.o op_destroy.o op_open.o op_create.o op_release.o op_write.o op_truncate.o op_opendir.o op_readdir.o op_releasedir.o op_getattr.o op_mkdir.o op_rmdir.o op_unlink.o op_rename.o op_chmod.o op_chown.o op_link.o op_symlink.o op_readlink.o lwext4/build_generic/lwext4/liblwext4.a
 
 $(BINARY): $(SOURCES)
 	$(CC) -o $@ $^ $(LDFLAGS)

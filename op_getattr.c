@@ -28,15 +28,9 @@ int op_getattr(const char *path, struct stat *stbuf)
 
     memset(stbuf, 0, sizeof(struct stat));
 
-    r = ext4_fopen2(&f, path, O_RDONLY, true);
-    if (r != EOK) {
-        if (r != ENOENT)
+    r = ext4_fopen_all(&f, path, O_RDONLY);
+    if (r != EOK)
             return -r;
-
-        r = ext4_fopen2(&f, path, O_RDONLY, false);
-        if (r != EOK)
-            return -r;
-    }
 
     ino = f.inode;
     ext4_fclose(&f);
