@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Grzegorz Kostka (kostka.grzegorz@gmail.com)
+ * Copyright (c) 2015, Kaho Ng, ngkaho1234@gmail.com
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+
+#if defined(__linux__)
+#include <linux/fs.h>
+#elif defined(__APPLE__) && (__MACH__)
+#include <sys/disk.h>
+#endif
 
 /**@brief   Image block size.*/
 #define EXT4_BLOCKDEV_BSIZE 512
@@ -80,9 +86,9 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 {
     struct block_dev *bdev;
     int dev_file = __blockdev_get(fname);
-    int64_t block_cnt;
+    int64_t block_cnt = 0;
 
-    if (!dev_file < 0)
+    if (dev_file < 0)
         return EIO;
 
     bdev = ALLOC_BDEV();
@@ -93,9 +99,16 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
     bdev->fd = dev_file;
     bdev->bdev.ph_bsize = EXT4_BLOCKDEV_BSIZE;
     /* We should get rid of those platform-specific ioctls. */
+#if defined(__linux__)
+    ioctl(dev_file, BLKGETSIZE64, &block_cnt);
+    block_cnt /= EXT4_BLOCKDEV_BSIZE;
+#elif defined(__APPLE__)
+    ioctl(dev_file, DKIOCGETBLOCKCOUNT, &block_cnt);
+#else
     block_cnt = lseek(dev_file, 0, SEEK_END) / EXT4_BLOCKDEV_BSIZE;
     bdev->bdev.ph_bcnt = block_cnt;
     lseek(dev_file, 0, SEEK_SET);
+#endif
     bdev->bdev.ph_bbuf = bdev->block_buf;
 
     bdev->bdev.open = blockdev_open;
