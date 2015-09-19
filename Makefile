@@ -7,6 +7,7 @@ LWEXT4_PATH = lwext4
 
 CC := gcc
 MAKE := make
+PREFIX := /usr/local/bin
 
 CFLAGS  += $(shell pkg-config fuse --cflags) -DFUSE_USE_VERSION=26 -std=gnu99 -g3
 CFLAGS  += -DEXT4FUSE_VERSION=\"$(VERSION)\"
@@ -33,6 +34,9 @@ $(BINARY): $(SOURCES)
 	$(MAKE) -C $(LWEXT4_PATH)/build_generic
 	$(CC) -o $@ $^ $(LWEXT4_PATH)/build_generic/lwext4/liblwext4.a \
 $(LDFLAGS)
+
+install: $(BINARY)
+	install ext4fuse $(PREFIX)/bin
 
 test-slow: $(BINARY)
 	@for T in test/[0-9]*; do ./$$T; done
