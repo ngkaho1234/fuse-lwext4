@@ -1,13 +1,18 @@
+CC := gcc
+MAKE := make
+PREFIX := /usr/local/bin
+BUILD_TYPE := Release
+PROJECT_SETUP = "Unix Makefiles"
+
+LWEXT4_PATH = $(PWD)/lwext4
+LWEXT4_BUILD_PATH = $(LWEXT4_PATH)/build_generic
+
+
 ifeq ($(shell which pkg-config), )
 $(error You need to install pkg-config in order to compile this sources)
 endif
 
 VERSION  = $(shell git describe --tags 2> /dev/null || basename `pwd`)
-LWEXT4_PATH = lwext4
-
-CC := gcc
-MAKE := make
-PREFIX := /usr/local/bin
 
 CFLAGS  += $(shell pkg-config fuse --cflags) -DFUSE_USE_VERSION=26 -std=gnu99 -g3
 CFLAGS  += -DEXT4FUSE_VERSION=\"$(VERSION)\"
@@ -29,11 +34,20 @@ endif
 BINARY = ext4fuse
 SOURCES += fuse-main.o logging.o blockdev.c
 SOURCES += op_read.o op_init.o op_destroy.o op_open.o op_create.o op_release.o op_write.o op_truncate.o op_opendir.o op_readdir.o op_releasedir.o op_getattr.o op_mkdir.o op_rmdir.o op_unlink.o op_rename.o op_chmod.o op_chown.o op_link.o op_symlink.o op_readlink.o 
-$(BINARY): $(SOURCES)
-	$(MAKE) -C $(LWEXT4_PATH)
-	$(MAKE) -C $(LWEXT4_PATH)/build_generic
-	$(CC) -o $@ $^ $(LWEXT4_PATH)/build_generic/lwext4/liblwext4.a \
-$(LDFLAGS)
+LIBLWEXT4_A = $(LWEXT4_BUILD_PATH)/lwext4/liblwext4.a
+
+$(BINARY): $(SOURCES) $(LIBLWEXT4_A)
+	$(CC) -o $@ $^ $(LDFLAGS)
+
+$(LWEXT4_BUILD_PATH):
+	mkdir $@
+
+$(LIBLWEXT4_A): $(LWEXT4_PATH)/lwext4/* $(LWEXT4_BUILD_PATH)
+	cd $(LWEXT4_BUILD_PATH) && \
+	cmake -G$(PROJECT_SETUP) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
+		-DCMAKE_TOOLCHAIN_FILE=$(LWEXT4_PATH)/toolchain/generic.cmake \
+		$(LWEXT4_PATH)
+	$(MAKE) -C $(LWEXT4_BUILD_PATH)
 
 install: $(BINARY)
 	install ext4fuse $(PREFIX)/bin
