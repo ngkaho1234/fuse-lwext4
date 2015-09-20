@@ -3,10 +3,10 @@ ext4fuse
 This is a implementation of ext4 for FUSE.
 
 ##Installation
-$ make
-# make install
+`$ make`
+`# make install`
 
-CREDIT:
+##CREDIT:
 Here i pay tribute sincerely to those people:
 
 Gerard Lledó Vives, gerard.lledo@gmail.com
