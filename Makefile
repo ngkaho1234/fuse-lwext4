@@ -1,7 +1,7 @@
 CC := gcc
 MAKE := make
 PREFIX := /usr/local/bin
-BUILD_TYPE := Release
+BUILD_TYPE := Debug
 PROJECT_SETUP = "Unix Makefiles"
 
 LWEXT4_PATH = $(PWD)/lwext4

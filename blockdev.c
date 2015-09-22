@@ -99,7 +99,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
     bdev->fd = dev_file;
     bdev->bdev.ph_bsize = EXT4_BLOCKDEV_BSIZE;
     /* We should get rid of those platform-specific ioctls. */
-#if defined(__linux__)
+#if 0
     ioctl(dev_file, BLKGETSIZE64, &block_cnt);
     block_cnt /= EXT4_BLOCKDEV_BSIZE;
 #elif defined(__APPLE__) 

@@ -14,7 +14,7 @@
 
 #include "ops.h"
 
-int op_symlink(const char *path, const char *target)
+int op_symlink(const char *target, const char *path)
 {
-    return -ext4_fsymlink(path, target);
+    return -ext4_fsymlink(target, path);
 }

@@ -25,5 +25,5 @@ int op_readlink(const char *path, char *buf, size_t bufsiz)
 
     r = ext4_fread(&f, buf, bufsiz, &size_ret);
     ext4_fclose(&f);
-    return size_ret;
+    return -r;
 }
