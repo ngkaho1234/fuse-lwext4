@@ -33,7 +33,7 @@ int op_mkdir(const char *path, mode_t mode)
     if (rc != EOK) {
         ext4_dir_rm(path);
     } else {
-        rc = ext4_fchmod(f, mode|EXT4_INODE_MODE_DIRECTORY);
+        rc = ext4_chmod(path, mode|EXT4_INODE_MODE_DIRECTORY);
         ext4_fclose(f);
     }
     free_ext4_file(f);

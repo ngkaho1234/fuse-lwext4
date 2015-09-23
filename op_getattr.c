@@ -21,21 +21,13 @@ int op_getattr(const char *path, struct stat *stbuf)
 {
     struct ext4_inode inode;
     struct ext4_sblock *sb;
-    ext4_file f;
     int r = 0;
     uint32_t ino;
     uint64_t size;
 
     memset(stbuf, 0, sizeof(struct stat));
 
-    r = ext4_fopen_all(&f, path, O_RDONLY);
-    if (r != EOK)
-            return -r;
-
-    ino = f.inode;
-    ext4_fclose(&f);
-
-    r = ext4_fill_raw_inode(path, ino, &inode);
+    r = ext4_fill_raw_inode(path, &ino, &inode);
     if (r != EOK)
         return -r;
 
