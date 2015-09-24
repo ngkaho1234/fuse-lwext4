@@ -14,7 +14,8 @@
 #include "logging.h"
 #include "ops.h"
 
-static pthread_mutex_t mp_mutex = PTHREAD_MUTEX_INITIALIZER;
+static pthread_mutexattr_t mp_mutex_attr;
+static pthread_mutex_t mp_mutex;
 
 static void mp_lock()
 {
@@ -37,8 +38,14 @@ void *op_init(struct fuse_conn_info *info)
     struct ext4_blockdev *bdev = get_current_blockdev();
     rc = ext4_device_register(bdev, NULL, "ext4_fs");
     assert(rc == EOK);
+
     rc = ext4_mount("ext4_fs", "/");
     assert(rc == EOK);
+
+    pthread_mutexattr_init(&mp_mutex_attr);
+    pthread_mutexattr_settype(&mp_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&mp_mutex, &mp_mutex_attr);
+
     ext4_mount_setup_locks("/", &mp_lock_func);
     return bdev;
 }
