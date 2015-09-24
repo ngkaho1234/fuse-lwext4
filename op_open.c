@@ -41,7 +41,7 @@ int op_open(const char *path, struct fuse_file_info *fi)
     if (!f)
         return -ENOMEM;
 
-    rc = ext4_fopen2(f, path, fi->flags, true);
+    rc = ext4_fopen2(f, path, fi->flags);
     if (rc != EOK) {
         free_ext4_file(f);
     } else {

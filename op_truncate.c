@@ -19,7 +19,7 @@ int op_truncate (const char *path, off_t length)
     if (!f)
         return -ENOMEM;
 
-    rc = ext4_fopen2(f, path, O_RDWR|O_APPEND, true);
+    rc = ext4_fopen2(f, path, O_RDWR|O_APPEND);
     if (rc != EOK)
         goto out;
 
