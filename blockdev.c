@@ -101,7 +101,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
     bdev->fd = dev_file;
     bdev->bdev.ph_bsize = EXT4_BLOCKDEV_BSIZE;
     fstat(dev_file, &stat);
-    if ((stat.st_mode & __S_IFMT) == __S_IFBLK) {
+    if ((stat.st_mode & S_IFMT) == S_IFBLK) {
 #if defined(__linux__)
         ioctl(dev_file, BLKGETSIZE64, &block_cnt);
         block_cnt /= EXT4_BLOCKDEV_BSIZE;
@@ -110,7 +110,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 #else
  #error "Currently support Linux and OS X only."
 #endif
-    } else if ((stat.st_mode & __S_IFMT) == __S_IFREG) {
+    } else if ((stat.st_mode & S_IFMT) == S_IFREG) {
         block_cnt = lseek(dev_file, 0, SEEK_END) / EXT4_BLOCKDEV_BSIZE;
         lseek(dev_file, 0, SEEK_SET);
     } else {
