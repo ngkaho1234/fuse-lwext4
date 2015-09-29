@@ -44,6 +44,7 @@ int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
             if (filler(buf, name_buf, NULL, offset) != 0) break;
         }
     }
+    ext4_dir_entry_rewind(d);
 
     return 0;
 }
