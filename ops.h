@@ -83,4 +83,6 @@ int op_rename(const char *path, const char *new_path);
 int op_chmod(const char *path, mode_t mode);
 int op_chown(const char *path, uid_t uid, gid_t gid);
 
+int op_statvfs(const char *path, struct statvfs *statvfs);
+
 #endif
