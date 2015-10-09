@@ -54,6 +54,10 @@ static struct fuse_operations e4f_ops = {
     .symlink    = op_symlink,
     .readlink   = op_readlink,
     .statfs     = op_statvfs,
+    .setxattr   = op_setxattr,
+    .getxattr   = op_getxattr,
+    .listxattr  = op_listxattr,
+    .removexattr= op_removexattr,
 };
 
 static struct e4f {
