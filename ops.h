@@ -89,10 +89,10 @@ int op_setxattr(const char *path, const char *name,
 		     const char *value, size_t size, int flags);
 #if defined(__APPLE__)
 int op_getxattr(const char *path, const char *name,
-		     const void *value, size_t size, uint32_t position);
+		     char *value, size_t size, uint32_t position);
 #else
 int op_getxattr(const char *path, const char *name,
-		     void *value, size_t size);
+		     char *value, size_t size);
 #endif
 
 int op_listxattr(const char *path, char *list, size_t size);

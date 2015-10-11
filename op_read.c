@@ -19,12 +19,13 @@
 int op_read(const char *path, char *buf, size_t size, off_t offset,
             struct fuse_file_info *fi)
 {
-    int size_ret, rc;
+    int rc;
+    size_t size_ret;
     ext4_file *f = get_fi_file(fi);
     ext4_fseek(f, offset, SEEK_SET);
     rc = ext4_fread(f, buf, size, &size_ret);
     if (rc != EOK)
         return -rc;
 
-    return size_ret;
+    return (int)size_ret;
 }
