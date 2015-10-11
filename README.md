@@ -11,5 +11,5 @@ $ make
 ##CREDIT:
 Here i pay tribute sincerely to those people:
 
-Gerard Lledó Vives, gerard.lledo@gmail.com (Originally based on the fuse layer by ext4fuse)
+Gerard Lledó Vives, gerard.lledo@gmail.com (Originally based on the fuse layer by ext4fuse)\n
 Grzegorz Kostka, kostka.grzegorz@gmail.com
