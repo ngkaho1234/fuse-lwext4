@@ -58,7 +58,10 @@ static struct fuse_operations e4f_ops = {
     .getxattr   = op_getxattr,
     .listxattr  = op_listxattr,
     .removexattr= op_removexattr,
+#if !defined(__FreeBSD__)
     .utimens    = op_utimens,
+#endif
+    .utime      = op_utimes,
 };
 
 static struct e4f {
@@ -141,7 +144,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    if (blockdev_get(e4f.disk, &bdev) != EOK) {
+    if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
         fprintf(stderr, "Failed to open the device\n");
         return EXIT_FAILURE;
     }

@@ -40,7 +40,7 @@
 
 #if defined(__linux__)
 #include <linux/fs.h>
-#elif defined(__APPLE__)
+#elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/disk.h>
 #endif
 
@@ -107,8 +107,11 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
         block_cnt /= EXT4_BLOCKDEV_BSIZE;
 #elif defined(__APPLE__) 
         ioctl(dev_file, DKIOCGETBLOCKCOUNT, &block_cnt);
+#elif defined(__FreeBSD__)
+	ioctl(dev_file, DIOCGMEDIASIZE, &block_cnt);
+	block_cnt /= EXT4_BLOCKDEV_BSIZE;
 #else
- #error "Currently support Linux and OS X only."
+ #error "Currently support Linux, FreeBSD and OS X only."
 #endif
     } else if ((stat.st_mode & S_IFMT) == S_IFREG) {
         block_cnt = lseek(dev_file, 0, SEEK_END) / EXT4_BLOCKDEV_BSIZE;

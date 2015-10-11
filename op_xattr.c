@@ -9,11 +9,18 @@
 
 #include <unistd.h>
 #include <string.h>
+
+#if defined(__FreeBSD__)
+#include <sys/extattr.h>
+#else
 #include <sys/xattr.h>
+#endif
+
 #include <errno.h>
 
 #include "ops.h"
 
+#if !defined(__FreeBSD__)
 int op_setxattr(const char *path, const char *name,
 		     const char *value, size_t size, int flags)
 {
@@ -21,6 +28,15 @@ int op_setxattr(const char *path, const char *name,
 		  (void *)value, size,
 		  (flags & XATTR_REPLACE) ? true : false);
 }
+#else
+int op_setxattr(const char *path, const char *name,
+		     const char *value, size_t size, int flags)
+{
+	return -ext4_setxattr(path, name, strlen(name),
+		  (void *)value, size,
+		  true);
+}
+#endif
 
 #if defined(__APPLE__)
 int op_getxattr(const char *path, const char *name,

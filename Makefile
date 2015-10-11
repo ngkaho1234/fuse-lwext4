@@ -1,5 +1,5 @@
-CC := gcc
-MAKE := make
+CC := cc
+MAKE := gmake
 PREFIX := /usr/local/bin
 BUILD_TYPE := Debug
 PROJECT_SETUP = "Unix Makefiles"

@@ -31,6 +31,7 @@ static uint32_t timespec_to_second(const struct timespec *ts)
 	return ts->tv_sec;
 }
 
+#if !defined(__FreeBSD__)
 int op_utimens(const char *path, const struct timespec tv[2])
 {
 	int rc;
@@ -63,4 +64,27 @@ int op_utimens(const char *path, const struct timespec tv[2])
 	}
 	return EOK;
 
+}
+#endif
+
+int op_utimes(const char *path, struct utimbuf *utimbuf)
+{
+	int rc;
+	time_t atime, mtime;
+	if (!utimbuf) {
+		struct timespec ts;
+		timespec_now(&ts);
+		atime = mtime = timespec_to_second(&ts);
+	} else {
+		atime = utimbuf->actime;
+		mtime = utimbuf->modtime;
+	}
+	rc = ext4_file_set_atime(path, atime);
+	if (rc != EOK)
+		return -rc;
+	rc = ext4_file_set_mtime(path, mtime);
+	if (rc != EOK)
+		return -rc;
+
+	return -rc;
 }
