@@ -5,7 +5,7 @@ This is a implementation of EXT4 on FUSE.
 ##Installation
 ```bash
 $ make
-\# make install
+# make install
 ```
 
 ##CREDIT:
