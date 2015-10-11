@@ -7,6 +7,10 @@ PROJECT_SETUP = "Unix Makefiles"
 LWEXT4_PATH = $(PWD)/lwext4
 LWEXT4_BUILD_PATH = $(LWEXT4_PATH)/build_generic
 
+CFLAGS += -DCONFIG_HAVE_OWN_OFLAGS=0 \
+    -DCONFIG_HAVE_OWN_ERRNO=0 \
+    -DCONFIG_HAVE_OWN_ASSERT=0 \
+    -DCONFIG_BLOCK_DEV_CACHE_SIZE=16
 
 ifeq ($(shell which pkg-config), )
 $(error You need to install pkg-config in order to compile this sources)
