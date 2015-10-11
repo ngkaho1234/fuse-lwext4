@@ -3,10 +3,10 @@ fuse-lwext4
 This is a implementation of EXT4 on FUSE.
 
 ##Installation
-#+BEGIN_SRC
+```bash
 $ make
 \# make install
-#+END_SRC
+```
 
 ##CREDIT:
 Here i pay tribute sincerely to those people:
