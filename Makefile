@@ -19,7 +19,7 @@ endif
 VERSION  = $(shell git describe --tags 2> /dev/null || basename `pwd`)
 
 CFLAGS  += $(shell pkg-config fuse --cflags) -DFUSE_USE_VERSION=26 -std=gnu99 -g3
-CFLAGS  += -DEXT4FUSE_VERSION=\"$(VERSION)\"
+CFLAGS  += -DFUSE_LWEXT4_VERSION=\"$(VERSION)\"
 CFLAGS  += -I$(WEXT4_PATH)/lwext4
 LDFLAGS += $(shell pkg-config fuse --libs)
 
@@ -35,7 +35,7 @@ CFLAGS  += -I/usr/local/include -L/usr/local/lib
 LDFLAGS += -lexecinfo
 endif
 
-BINARY = ext4fuse
+BINARY = fuse-lwext4
 SOURCES += fuse-main.o logging.o blockdev.c
 SOURCES += op_init.o op_destroy.o \
 	   op_open.o op_create.o op_release.o \
@@ -62,7 +62,7 @@ $(LIBLWEXT4_A): $(LWEXT4_PATH)/lwext4/* $(LWEXT4_BUILD_PATH)
 	$(MAKE) -C $(LWEXT4_BUILD_PATH)
 
 install: $(BINARY)
-	install ext4fuse $(PREFIX)/bin
+	install $(BINARY) $(PREFIX)/bin
 
 test-slow: $(BINARY)
 	@for T in test/[0-9]*; do ./$$T; done

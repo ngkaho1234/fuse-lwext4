@@ -25,8 +25,8 @@
 #include "logging.h"
 #include "blockdev.h"
 
-#ifndef EXT4FUSE_VERSION
-#define EXT4FUSE_VERSION    "EXT4FUSE-UNKNOWN-VER"
+#ifndef FUSE_LWEXT4_VERSION
+#define FUSE_LWEXT4_VERSION    "FUSE_LWEXT4-???"
 #endif
 
 
@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
     }
 
     if (!e4f.disk) {
-        fprintf(stderr, "Version: %s\n", EXT4FUSE_VERSION);
+        fprintf(stderr, "Version: %s\n", FUSE_LWEXT4_VERSION);
         fprintf(stderr, "Usage: %s <disk> <mountpoint>\n", argv[0]);
         exit(1);
     }

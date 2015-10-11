@@ -1,6 +1,6 @@
 ext4fs.raw
 ext4fsr.raw
-ext4fuse
+fuse-lwext4
 *.o
 .*.swp
 /test/logs
