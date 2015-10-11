@@ -58,6 +58,7 @@ static struct fuse_operations e4f_ops = {
     .getxattr   = op_getxattr,
     .listxattr  = op_listxattr,
     .removexattr= op_removexattr,
+    .utimens    = op_utimens,
 };
 
 static struct e4f {

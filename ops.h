@@ -98,4 +98,6 @@ int op_getxattr(const char *path, const char *name,
 int op_listxattr(const char *path, char *list, size_t size);
 int op_removexattr(const char *path, const char *name);
 
+int op_utimens(const char *path, const struct timespec tv[2]);
+
 #endif
