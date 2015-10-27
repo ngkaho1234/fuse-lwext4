@@ -8,6 +8,10 @@ $ make
 # make install
 ```
 
+##NOTES:
+1. Currently fuse-lwext4 runs in single-threaded mode, because running  
+the fuse module in multi-threaded mode may be unstable.
+
 ##CREDIT:
 Here i pay tribute sincerely to those people:
 

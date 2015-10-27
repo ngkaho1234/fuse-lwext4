@@ -144,6 +144,8 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
+    fuse_opt_add_arg(&args, "-s");
+
     if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
         fprintf(stderr, "Failed to open the device\n");
         return EXIT_FAILURE;
