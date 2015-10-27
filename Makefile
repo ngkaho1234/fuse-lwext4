@@ -36,7 +36,7 @@ LDFLAGS += -lexecinfo
 endif
 
 BINARY = fuse-lwext4
-SOURCES += fuse-main.o logging.o blockdev.c
+SOURCES += fuse-main.o logging.o blockdev.o
 SOURCES += op_init.o op_destroy.o \
 	   op_open.o op_create.o op_release.o \
 	   op_read.o op_write.o op_truncate.o \
