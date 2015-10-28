@@ -67,10 +67,12 @@ static struct fuse_operations e4f_ops = {
 static struct e4f {
     char *disk;
     char *logfile;
+    uint32_t debug;
 } e4f;
 
 static struct fuse_opt e4f_opts[] = {
     { "logfile=%s", offsetof(struct e4f, logfile), 0 },
+    { "--debug", offsetof(struct e4f, debug), DEBUG_ALL },
     FUSE_OPT_END
 };
 
@@ -145,6 +147,8 @@ int main(int argc, char *argv[])
     }
 
     fuse_opt_add_arg(&args, "-s");
+    if (e4f.debug == DEBUG_ALL)
+        ext4_dmask_set(DEBUG_ALL);
 
     if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
         fprintf(stderr, "Failed to open the device\n");
