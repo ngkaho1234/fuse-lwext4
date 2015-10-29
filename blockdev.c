@@ -49,7 +49,7 @@
 
 struct block_dev {
     struct ext4_blockdev bdev;
-    char block_buf[EXT4_BLOCKDEV_BSIZE];
+    unsigned char block_buf[EXT4_BLOCKDEV_BSIZE];
     int fd;
 };
 
@@ -101,19 +101,20 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
     bdev->fd = dev_file;
     bdev->bdev.ph_bsize = EXT4_BLOCKDEV_BSIZE;
     fstat(dev_file, &stat);
-    if ((stat.st_mode & S_IFMT) == S_IFBLK) {
+    if (S_ISBLK(stat.st_mode)) {
 #if defined(__linux__)
         ioctl(dev_file, BLKGETSIZE64, &block_cnt);
         block_cnt /= EXT4_BLOCKDEV_BSIZE;
 #elif defined(__APPLE__) 
         ioctl(dev_file, DKIOCGETBLOCKCOUNT, &block_cnt);
 #elif defined(__FreeBSD__)
-	ioctl(dev_file, DIOCGMEDIASIZE, &block_cnt);
-	block_cnt /= EXT4_BLOCKDEV_BSIZE;
+    } else if (S_ISCHR(stat.st_mode)) {
+        ioctl(dev_file, DIOCGMEDIASIZE, &block_cnt);
+        block_cnt /= EXT4_BLOCKDEV_BSIZE;
 #else
  #error "Currently support Linux, FreeBSD and OS X only."
 #endif
-    } else if ((stat.st_mode & S_IFMT) == S_IFREG) {
+    } else if (S_ISREG(stat.st_mode & S_IFMT)) {
         block_cnt = lseek(dev_file, 0, SEEK_END) / EXT4_BLOCKDEV_BSIZE;
         lseek(dev_file, 0, SEEK_SET);
     } else {
