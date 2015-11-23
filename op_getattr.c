@@ -36,13 +36,13 @@ int op_getattr(const char *path, struct stat *stbuf)
         return -r;
 
     stbuf->st_mode = ext4_inode_get_mode(sb, &inode);
-    stbuf->st_nlink = ext4_inode_get_links_count(&inode);
+    stbuf->st_nlink = ext4_inode_get_links_cnt(&inode);
     stbuf->st_size = ext4_inode_get_size(sb, &inode);
     stbuf->st_blocks = ext4_inode_get_blocks_count(sb, &inode);
     stbuf->st_uid = ext4_inode_get_uid(&inode);
     stbuf->st_gid = ext4_inode_get_gid(&inode);
     stbuf->st_atime = ext4_inode_get_access_time(&inode);
-    stbuf->st_mtime = ext4_inode_get_modification_time(&inode);
+    stbuf->st_mtime = ext4_inode_get_modif_time(&inode);
     stbuf->st_ctime = ext4_inode_get_change_inode_time(&inode);
 
     return 0;
