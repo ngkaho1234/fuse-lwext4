@@ -49,6 +49,7 @@
 
 struct block_dev {
     struct ext4_blockdev bdev;
+    struct ext4_blockdev_iface bdif;
     unsigned char block_buf[EXT4_BLOCKDEV_BSIZE];
     int fd;
 };
@@ -99,7 +100,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
         return ENOMEM;
     }
     bdev->fd = dev_file;
-    bdev->bdev.ph_bsize = EXT4_BLOCKDEV_BSIZE;
+    bdev->bdif.ph_bsize = EXT4_BLOCKDEV_BSIZE;
     fstat(dev_file, &stat);
     if (S_ISBLK(stat.st_mode)) {
 #if defined(__linux__)
@@ -122,13 +123,17 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
         __blockdev_put(dev_file);
         return EINVAL;
     }
-    bdev->bdev.ph_bcnt = block_cnt;
-    bdev->bdev.ph_bbuf = bdev->block_buf;
+    bdev->bdif.ph_bcnt = block_cnt;
+    bdev->bdif.ph_bbuf = bdev->block_buf;
 
-    bdev->bdev.open = blockdev_open;
-    bdev->bdev.bread = blockdev_bread;
-    bdev->bdev.bwrite = blockdev_bwrite;
-    bdev->bdev.close = blockdev_close;
+    bdev->bdif.open = blockdev_open;
+    bdev->bdif.bread = blockdev_bread;
+    bdev->bdif.bwrite = blockdev_bwrite;
+    bdev->bdif.close = blockdev_close;
+
+    bdev->bdev.bdif = &bdev->bdif;
+    bdev->bdev.ph_blk_offset = 0;
+
     *pbdev = (struct ext4_blockdev *)bdev;
 
     return EOK;
@@ -152,9 +157,9 @@ static int blockdev_bread(struct ext4_blockdev *bdev, void *buf, uint64_t blk_id
 {
     int ret = pread(((struct block_dev *)bdev)->fd,
                     buf,
-                    bdev->ph_bsize * blk_cnt,
-                    blk_id * bdev->ph_bsize);
-    if (ret != bdev->ph_bsize * blk_cnt)
+                    bdev->bdif->ph_bsize * blk_cnt,
+                    blk_id * bdev->bdif->ph_bsize);
+    if (ret != bdev->bdif->ph_bsize * blk_cnt)
         return EIO;
 
     return EOK;
@@ -166,9 +171,9 @@ static int blockdev_bwrite(struct ext4_blockdev *bdev, const void *buf,
 {
     int ret = pwrite(((struct block_dev *)bdev)->fd,
                     buf,
-                    bdev->ph_bsize * blk_cnt,
-                    blk_id * bdev->ph_bsize);
-    if (ret != bdev->ph_bsize * blk_cnt)
+                    bdev->bdif->ph_bsize * blk_cnt,
+                    blk_id * bdev->bdif->ph_bsize);
+    if (ret != bdev->bdif->ph_bsize * blk_cnt)
         return EIO;
 
     return EOK;
