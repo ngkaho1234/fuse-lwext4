@@ -47,5 +47,6 @@ void *op_init(struct fuse_conn_info *info)
     pthread_mutex_init(&mp_mutex, &mp_mutex_attr);
 
     ext4_mount_setup_locks("/", &mp_lock_func);
+    ext4_recover("/");
     return bdev;
 }

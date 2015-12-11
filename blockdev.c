@@ -132,7 +132,8 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
     bdev->bdif.close = blockdev_close;
 
     bdev->bdev.bdif = &bdev->bdif;
-    bdev->bdev.ph_blk_offset = 0;
+    bdev->bdev.part_offset = 0;
+    bdev->bdev.part_size = block_cnt * EXT4_BLOCKDEV_BSIZE;
 
     *pbdev = (struct ext4_blockdev *)bdev;
 
