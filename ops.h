@@ -18,7 +18,7 @@ static inline struct ext4_file *get_fi_file(struct fuse_file_info *fi)
 
 static inline void set_fi_file(struct fuse_file_info *fi, struct ext4_file *file)
 {
-	fi->fh_old = (uint64_t)file;
+	fi->fh_old = (unsigned long)file;
 }
 
 static inline ext4_dir *get_fi_dir(struct fuse_file_info *fi)
@@ -28,7 +28,7 @@ static inline ext4_dir *get_fi_dir(struct fuse_file_info *fi)
 
 static inline void set_fi_dir(struct fuse_file_info *fi, ext4_dir *dir)
 {
-	fi->fh_old = (uint64_t)dir;
+	fi->fh_old = (unsigned long)dir;
 }
 
 static inline ext4_file *alloc_ext4_file(void)
