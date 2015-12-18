@@ -19,34 +19,34 @@ static pthread_mutex_t mp_mutex;
 
 static void mp_lock()
 {
-        pthread_mutex_lock(&mp_mutex);
+		pthread_mutex_lock(&mp_mutex);
 }
 
 static void mp_unlock()
 {
-        pthread_mutex_unlock(&mp_mutex);
+		pthread_mutex_unlock(&mp_mutex);
 }
 
 static struct ext4_lock mp_lock_func = {
-        .lock        = mp_lock,
-        .unlock      = mp_unlock
+		.lock		= mp_lock,
+		.unlock	  = mp_unlock
 };
 
 void *op_init(struct fuse_conn_info *info)
 {
-    int rc;
-    struct ext4_blockdev *bdev = get_current_blockdev();
-    rc = ext4_device_register(bdev, NULL, "ext4_fs");
-    assert(rc == EOK);
+	int rc;
+	struct ext4_blockdev *bdev = get_current_blockdev();
+	rc = ext4_device_register(bdev, NULL, "ext4_fs");
+	assert(rc == EOK);
 
-    rc = ext4_mount("ext4_fs", "/");
-    assert(rc == EOK);
+	rc = ext4_mount("ext4_fs", "/");
+	assert(rc == EOK);
 
-    pthread_mutexattr_init(&mp_mutex_attr);
-    pthread_mutexattr_settype(&mp_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
-    pthread_mutex_init(&mp_mutex, &mp_mutex_attr);
+	pthread_mutexattr_init(&mp_mutex_attr);
+	pthread_mutexattr_settype(&mp_mutex_attr, PTHREAD_MUTEX_RECURSIVE);
+	pthread_mutex_init(&mp_mutex, &mp_mutex_attr);
 
-    ext4_mount_setup_locks("/", &mp_lock_func);
-    ext4_recover("/");
-    return bdev;
+	ext4_mount_setup_locks("/", &mp_lock_func);
+	ext4_recover("/");
+	return bdev;
 }

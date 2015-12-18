@@ -17,6 +17,6 @@
 
 int op_chmod(const char *path, mode_t mode)
 {
-    return -ext4_chmod(path, mode);
+	return -ext4_chmod(path, mode);
 }
 

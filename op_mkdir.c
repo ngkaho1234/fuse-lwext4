@@ -18,14 +18,14 @@
 
 int op_mkdir(const char *path, mode_t mode)
 {
-    int rc;
+	int rc;
 
-    rc = ext4_dir_mk(path);
-    if (rc != EOK)
-        return -rc;
+	rc = ext4_dir_mk(path);
+	if (rc != EOK)
+		return -rc;
 
-    rc = ext4_chmod(path, mode|EXT4_INODE_MODE_DIRECTORY);
+	rc = ext4_chmod(path, mode|EXT4_INODE_MODE_DIRECTORY);
 
-    return -rc;
+	return -rc;
 
 }

@@ -22,7 +22,7 @@
 
 #if !defined(__FreeBSD__)
 int op_setxattr(const char *path, const char *name,
-		     const char *value, size_t size, int flags)
+			 const char *value, size_t size, int flags)
 {
 	return -ext4_setxattr(path, name, strlen(name),
 		  (void *)value, size,
@@ -30,7 +30,7 @@ int op_setxattr(const char *path, const char *name,
 }
 #else
 int op_setxattr(const char *path, const char *name,
-		     const char *value, size_t size, int flags)
+			 const char *value, size_t size, int flags)
 {
 	return -ext4_setxattr(path, name, strlen(name),
 		  (void *)value, size,
@@ -40,7 +40,7 @@ int op_setxattr(const char *path, const char *name,
 
 #if defined(__APPLE__)
 int op_getxattr(const char *path, const char *name,
-		     char *value, size_t size, uint32_t position)
+			 char *value, size_t size, uint32_t position)
 {
 	int rc = 0;
 	size_t data_size = 0;
@@ -58,7 +58,7 @@ int op_getxattr(const char *path, const char *name,
 }
 #else
 int op_getxattr(const char *path, const char *name,
-		     char *value, size_t size)
+			 char *value, size_t size)
 {
 	int rc = 0;
 	size_t data_size = 0;

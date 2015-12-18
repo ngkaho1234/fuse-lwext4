@@ -18,8 +18,8 @@
 
 int op_rmdir(const char *path)
 {
-    int rc;
+	int rc;
 
-    rc = ext4_dir_rm(path);
-    return -rc;
+	rc = ext4_dir_rm(path);
+	return -rc;
 }

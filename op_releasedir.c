@@ -16,10 +16,10 @@
 
 int op_releasedir(const char *path, struct fuse_file_info *fi)
 {
-    int rc;
-    ext4_dir *d = get_fi_dir(fi);
+	int rc;
+	ext4_dir *d = get_fi_dir(fi);
 
-    rc = ext4_dir_close(d);
-    free_ext4_dir(d);
-    return -rc;
+	rc = ext4_dir_close(d);
+	free_ext4_dir(d);
+	return -rc;
 }

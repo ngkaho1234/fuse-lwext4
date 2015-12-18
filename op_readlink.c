@@ -16,5 +16,5 @@
 
 int op_readlink(const char *path, char *buf, size_t bufsiz)
 {
-    return ext4_readlink(path, buf, bufsiz, NULL);
+	return ext4_readlink(path, buf, bufsiz, NULL);
 }

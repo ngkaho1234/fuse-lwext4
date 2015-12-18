@@ -19,31 +19,31 @@
 
 int op_getattr(const char *path, struct stat *stbuf)
 {
-    struct ext4_inode inode;
-    struct ext4_sblock *sb;
-    int r = 0;
-    uint32_t ino;
-    uint64_t size;
+	struct ext4_inode inode;
+	struct ext4_sblock *sb;
+	int r = 0;
+	uint32_t ino;
+	uint64_t size;
 
-    memset(stbuf, 0, sizeof(struct stat));
+	memset(stbuf, 0, sizeof(struct stat));
 
-    r = ext4_fill_raw_inode(path, &ino, &inode);
-    if (r != EOK)
-        return -r;
+	r = ext4_fill_raw_inode(path, &ino, &inode);
+	if (r != EOK)
+		return -r;
 
-    r = ext4_get_sblock(path, &sb);
-    if (r != EOK)
-        return -r;
+	r = ext4_get_sblock(path, &sb);
+	if (r != EOK)
+		return -r;
 
-    stbuf->st_mode = ext4_inode_get_mode(sb, &inode);
-    stbuf->st_nlink = ext4_inode_get_links_cnt(&inode);
-    stbuf->st_size = ext4_inode_get_size(sb, &inode);
-    stbuf->st_blocks = ext4_inode_get_blocks_count(sb, &inode);
-    stbuf->st_uid = ext4_inode_get_uid(&inode);
-    stbuf->st_gid = ext4_inode_get_gid(&inode);
-    stbuf->st_atime = ext4_inode_get_access_time(&inode);
-    stbuf->st_mtime = ext4_inode_get_modif_time(&inode);
-    stbuf->st_ctime = ext4_inode_get_change_inode_time(&inode);
+	stbuf->st_mode = ext4_inode_get_mode(sb, &inode);
+	stbuf->st_nlink = ext4_inode_get_links_cnt(&inode);
+	stbuf->st_size = ext4_inode_get_size(sb, &inode);
+	stbuf->st_blocks = ext4_inode_get_blocks_count(sb, &inode);
+	stbuf->st_uid = ext4_inode_get_uid(&inode);
+	stbuf->st_gid = ext4_inode_get_gid(&inode);
+	stbuf->st_atime = ext4_inode_get_access_time(&inode);
+	stbuf->st_mtime = ext4_inode_get_modif_time(&inode);
+	stbuf->st_ctime = ext4_inode_get_change_inode_time(&inode);
 
-    return 0;
+	return 0;
 }

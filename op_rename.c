@@ -18,9 +18,9 @@
 
 int op_rename(const char *path, const char *new_path)
 {
-    int rc;
+	int rc;
 
-    rc = ext4_frename(path, new_path);
-    return -rc;
+	rc = ext4_frename(path, new_path);
+	return -rc;
 }
 

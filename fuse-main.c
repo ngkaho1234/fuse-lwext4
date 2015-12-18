@@ -8,7 +8,7 @@
  * more details.
  *
  * Obviously inspired on the great FUSE hello world example:
- *      - http://fuse.sourceforge.net/helloworld.html
+ *	  - http://fuse.sourceforge.net/helloworld.html
  */
 
 
@@ -26,138 +26,138 @@
 #include "blockdev.h"
 
 #ifndef FUSE_LWEXT4_VERSION
-#define FUSE_LWEXT4_VERSION    "FUSE_LWEXT4-???"
+#define FUSE_LWEXT4_VERSION	"FUSE_LWEXT4-???"
 #endif
 
 
 static struct fuse_operations e4f_ops = {
-    .open       = op_open,
-    .create     = op_create,
-    .release    = op_release,
-    .read       = op_read,
-    .write      = op_write,
-    .truncate   = op_truncate,
-    .ftruncate  = op_ftruncate,
-    .init       = op_init,
-    .destroy    = op_destroy,
-    .opendir    = op_opendir,
-    .releasedir = op_releasedir,
-    .readdir    = op_readdir,
-    .getattr    = op_getattr,
-    .mkdir      = op_mkdir,
-    .rmdir      = op_rmdir,
-    .link       = op_link,
-    .unlink     = op_unlink,
-    .rename     = op_rename,
-    .chmod      = op_chmod,
-    .chown      = op_chown,
-    .symlink    = op_symlink,
-    .readlink   = op_readlink,
-    .statfs     = op_statvfs,
-    .setxattr   = op_setxattr,
-    .getxattr   = op_getxattr,
-    .listxattr  = op_listxattr,
-    .removexattr= op_removexattr,
+	.open	   = op_open,
+	.create	 = op_create,
+	.release	= op_release,
+	.read	   = op_read,
+	.write	  = op_write,
+	.truncate   = op_truncate,
+	.ftruncate  = op_ftruncate,
+	.init	   = op_init,
+	.destroy	= op_destroy,
+	.opendir	= op_opendir,
+	.releasedir = op_releasedir,
+	.readdir	= op_readdir,
+	.getattr	= op_getattr,
+	.mkdir	  = op_mkdir,
+	.rmdir	  = op_rmdir,
+	.link	   = op_link,
+	.unlink	 = op_unlink,
+	.rename	 = op_rename,
+	.chmod	  = op_chmod,
+	.chown	  = op_chown,
+	.symlink	= op_symlink,
+	.readlink   = op_readlink,
+	.statfs	 = op_statvfs,
+	.setxattr   = op_setxattr,
+	.getxattr   = op_getxattr,
+	.listxattr  = op_listxattr,
+	.removexattr= op_removexattr,
 #if !defined(__FreeBSD__)
-    .utimens    = op_utimens,
+	.utimens	= op_utimens,
 #endif
-    .utime      = op_utimes,
+	.utime	  = op_utimes,
 };
 
 static struct e4f {
-    char *disk;
-    char *logfile;
-    uint32_t debug;
+	char *disk;
+	char *logfile;
+	uint32_t debug;
 } e4f;
 
 static struct fuse_opt e4f_opts[] = {
-    { "logfile=%s", offsetof(struct e4f, logfile), 0 },
-    { "--debug", offsetof(struct e4f, debug), DEBUG_ALL },
-    FUSE_OPT_END
+	{ "logfile=%s", offsetof(struct e4f, logfile), 0 },
+	{ "--debug", offsetof(struct e4f, debug), DEBUG_ALL },
+	FUSE_OPT_END
 };
 
 static int e4f_opt_proc(void *data, const char *arg, int key,
-                        struct fuse_args *outargs)
+						struct fuse_args *outargs)
 {
-    (void) data;
-    (void) outargs;
+	(void) data;
+	(void) outargs;
 
-    switch (key) {
-    case FUSE_OPT_KEY_OPT:
-        return 1;
-    case FUSE_OPT_KEY_NONOPT:
-        if (!e4f.disk) {
-            e4f.disk = strdup(arg);
-            return 0;
-        }
-        return 1;
-    default:
-        fprintf(stderr, "internal error\n");
-        abort();
-    }
+	switch (key) {
+	case FUSE_OPT_KEY_OPT:
+		return 1;
+	case FUSE_OPT_KEY_NONOPT:
+		if (!e4f.disk) {
+			e4f.disk = strdup(arg);
+			return 0;
+		}
+		return 1;
+	default:
+		fprintf(stderr, "internal error\n");
+		abort();
+	}
 }
 
 void signal_handle_sigsegv(int signal)
 {
-    void *array[10];
-    size_t size;
-    char **strings;
-    size_t i;
+	void *array[10];
+	size_t size;
+	char **strings;
+	size_t i;
 
-    DEBUG("========================================");
-    DEBUG("Segmentation Fault.  Starting backtrace:");
-    size = backtrace(array, 10);
-    strings = backtrace_symbols(array, size);
+	DEBUG("========================================");
+	DEBUG("Segmentation Fault.  Starting backtrace:");
+	size = backtrace(array, 10);
+	strings = backtrace_symbols(array, size);
 
-    for (i = 0; i < size; i++)
-        DEBUG("%s", strings[i]);
-    DEBUG("========================================");
+	for (i = 0; i < size; i++)
+		DEBUG("%s", strings[i]);
+	DEBUG("========================================");
 
-    abort();
+	abort();
 }
 
 int main(int argc, char *argv[])
 {
-    int res;
-    struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
-    struct ext4_blockdev *bdev;
+	int res;
+	struct fuse_args args = FUSE_ARGS_INIT(argc, argv);
+	struct ext4_blockdev *bdev;
 
-    if (signal(SIGSEGV, signal_handle_sigsegv) == SIG_ERR) {
-        fprintf(stderr, "Failed to initialize signals\n");
-        return EXIT_FAILURE;
-    }
+	if (signal(SIGSEGV, signal_handle_sigsegv) == SIG_ERR) {
+		fprintf(stderr, "Failed to initialize signals\n");
+		return EXIT_FAILURE;
+	}
 
-    // Default options
-    e4f.disk = NULL;
-    e4f.logfile = DEFAULT_LOG_FILE;
+	// Default options
+	e4f.disk = NULL;
+	e4f.logfile = DEFAULT_LOG_FILE;
 
-    if (fuse_opt_parse(&args, &e4f, e4f_opts, e4f_opt_proc) == -1) {
-        return EXIT_FAILURE;
-    }
+	if (fuse_opt_parse(&args, &e4f, e4f_opts, e4f_opt_proc) == -1) {
+		return EXIT_FAILURE;
+	}
 
-    if (!e4f.disk) {
-        fprintf(stderr, "Version: %s\n", FUSE_LWEXT4_VERSION);
-        fprintf(stderr, "Usage: %s <disk> <mountpoint>\n", argv[0]);
-        exit(1);
-    }
+	if (!e4f.disk) {
+		fprintf(stderr, "Version: %s\n", FUSE_LWEXT4_VERSION);
+		fprintf(stderr, "Usage: %s <disk> <mountpoint>\n", argv[0]);
+		exit(1);
+	}
 
-    if (logging_open(e4f.logfile) < 0) {
-        fprintf(stderr, "Failed to initialize logging\n");
-        return EXIT_FAILURE;
-    }
+	if (logging_open(e4f.logfile) < 0) {
+		fprintf(stderr, "Failed to initialize logging\n");
+		return EXIT_FAILURE;
+	}
 
-    fuse_opt_add_arg(&args, "-s");
-    if (e4f.debug == DEBUG_ALL)
-        ext4_dmask_set(DEBUG_ALL);
+	fuse_opt_add_arg(&args, "-s");
+	if (e4f.debug == DEBUG_ALL)
+		ext4_dmask_set(DEBUG_ALL);
 
-    if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
-        fprintf(stderr, "Failed to open the device\n");
-        return EXIT_FAILURE;
-    }
-    res = fuse_main(args.argc, args.argv, &e4f_ops, bdev);
+	if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
+		fprintf(stderr, "Failed to open the device\n");
+		return EXIT_FAILURE;
+	}
+	res = fuse_main(args.argc, args.argv, &e4f_ops, bdev);
 
-    fuse_opt_free_args(&args);
-    DEBUG("Uninitializing...");
+	fuse_opt_free_args(&args);
+	DEBUG("Uninitializing...");
 
-    return res;
+	return res;
 }

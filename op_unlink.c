@@ -18,9 +18,9 @@
 
 int op_unlink(const char *path)
 {
-    int rc;
+	int rc;
 
-    rc = ext4_fremove(path);
-    return -rc;
+	rc = ext4_fremove(path);
+	return -rc;
 }
 

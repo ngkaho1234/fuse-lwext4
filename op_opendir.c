@@ -16,17 +16,17 @@
 
 int op_opendir(const char *path, struct fuse_file_info *fi)
 {
-    int rc;
-    ext4_dir *d;
-    d = alloc_ext4_dir();
-    if (!d)
-        return -ENOMEM;
+	int rc;
+	ext4_dir *d;
+	d = alloc_ext4_dir();
+	if (!d)
+		return -ENOMEM;
 
-    rc = ext4_dir_open(d, path);
-    if (rc != EOK) {
-        free_ext4_dir(d);
-    } else {
-        set_fi_dir(fi, d);
-    }
-    return -rc;
+	rc = ext4_dir_open(d, path);
+	if (rc != EOK) {
+		free_ext4_dir(d);
+	} else {
+		set_fi_dir(fi, d);
+	}
+	return -rc;
 }

@@ -15,10 +15,10 @@
 
 void op_destroy(void *ctx)
 {
-    int rc;
-    struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
-    rc = ext4_umount("/");
-    assert(rc == EOK);
-    blockdev_put(bdev);
-    return;
+	int rc;
+	struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
+	rc = ext4_umount("/");
+	assert(rc == EOK);
+	blockdev_put(bdev);
+	return;
 }

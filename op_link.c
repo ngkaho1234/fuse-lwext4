@@ -16,5 +16,5 @@
 
 int op_link(const char *path, const char *hardlink_path)
 {
-    return -ext4_flink(path, hardlink_path);
+	return -ext4_flink(path, hardlink_path);
 }

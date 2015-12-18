@@ -16,10 +16,10 @@
 
 int op_release(const char *path, struct fuse_file_info *fi)
 {
-    int rc;
-    ext4_file *f = get_fi_file(fi);
+	int rc;
+	ext4_file *f = get_fi_file(fi);
 
-    rc = ext4_fclose(f);
-    free_ext4_file(f);
-    return -rc;
+	rc = ext4_fclose(f);
+	free_ext4_file(f);
+	return -rc;
 }
