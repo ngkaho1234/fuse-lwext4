@@ -13,22 +13,22 @@ static inline struct ext4_blockdev *get_current_blockdev(void)
 
 static inline struct ext4_file *get_fi_file(struct fuse_file_info *fi)
 {
-	return (struct ext4_file *)fi->fh;
+	return (struct ext4_file *)fi->fh_old;
 }
 
 static inline void set_fi_file(struct fuse_file_info *fi, struct ext4_file *file)
 {
-	fi->fh = (uint64_t)file;
+	fi->fh_old = (uint64_t)file;
 }
 
 static inline ext4_dir *get_fi_dir(struct fuse_file_info *fi)
 {
-	return (ext4_dir *)fi->fh;
+	return (ext4_dir *)fi->fh_old;
 }
 
 static inline void set_fi_dir(struct fuse_file_info *fi, ext4_dir *dir)
 {
-	fi->fh = (uint64_t)dir;
+	fi->fh_old = (uint64_t)dir;
 }
 
 static inline ext4_file *alloc_ext4_file(void)
