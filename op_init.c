@@ -48,6 +48,5 @@ void *op_init(struct fuse_conn_info *info)
 
 	ext4_mount_setup_locks("/", &mp_lock_func);
 	ext4_recover("/");
-	ext4_test_journal("/");
 	return bdev;
 }

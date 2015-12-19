@@ -1,6 +1,6 @@
 CC := cc
 MAKE := make
-PREFIX := /usr/local/bin
+PREFIX := /usr/local
 BUILD_TYPE := Debug
 PROJECT_SETUP = "Unix Makefiles"
 
