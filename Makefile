@@ -4,7 +4,7 @@ PREFIX := /usr/local
 BUILD_TYPE := Debug
 PROJECT_SETUP = "Unix Makefiles"
 
-LWEXT4_PATH = $(PWD)/lwext4
+LWEXT4_PATH = $(shell pwd)/lwext4
 LWEXT4_BUILD_PATH = $(LWEXT4_PATH)/build_generic
 
 CFLAGS += -DCONFIG_HAVE_OWN_OFLAGS=0 \
