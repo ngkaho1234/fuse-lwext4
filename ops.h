@@ -6,6 +6,13 @@
 #include "blockdev.h"
 #include "lwext4/lwext4/ext4.h"
 
+/* fuse-lwext4 options. */
+struct fuse_lwext4_options {
+	char *disk;
+	char *logfile;
+	uint32_t debug;
+};
+
 static inline struct ext4_blockdev *get_current_blockdev(void)
 {
 	return (struct ext4_blockdev *)fuse_get_context()->private_data;

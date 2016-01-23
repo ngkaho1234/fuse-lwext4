@@ -64,15 +64,11 @@ static struct fuse_operations e4f_ops = {
 	.utime	  = op_utimes,
 };
 
-static struct e4f {
-	char *disk;
-	char *logfile;
-	uint32_t debug;
-} e4f;
+struct fuse_lwext4_options fuse_lwext4_options;
 
 static struct fuse_opt e4f_opts[] = {
-	{ "logfile=%s", offsetof(struct e4f, logfile), 0 },
-	{ "--debug", offsetof(struct e4f, debug), DEBUG_ALL },
+	{ "logfile=%s", offsetof(struct fuse_lwext4_options, logfile), 0 },
+	{ "--debug", offsetof(struct fuse_lwext4_options, debug), DEBUG_ALL },
 	FUSE_OPT_END
 };
 
@@ -86,8 +82,8 @@ static int e4f_opt_proc(void *data, const char *arg, int key,
 	case FUSE_OPT_KEY_OPT:
 		return 1;
 	case FUSE_OPT_KEY_NONOPT:
-		if (!e4f.disk) {
-			e4f.disk = strdup(arg);
+		if (!fuse_lwext4_options.disk) {
+			fuse_lwext4_options.disk = strdup(arg);
 			return 0;
 		}
 		return 1;
@@ -103,6 +99,9 @@ void signal_handle_sigsegv(int signal)
 	size_t size;
 	char **strings;
 	size_t i;
+
+	/* Eliminate compiler warning messages. */
+	(void)signal;
 
 	DEBUG("========================================");
 	DEBUG("Segmentation Fault.  Starting backtrace:");
@@ -128,29 +127,30 @@ int main(int argc, char *argv[])
 	}
 
 	// Default options
-	e4f.disk = NULL;
-	e4f.logfile = DEFAULT_LOG_FILE;
+	fuse_lwext4_options.disk = NULL;
+	fuse_lwext4_options.logfile = DEFAULT_LOG_FILE;
 
-	if (fuse_opt_parse(&args, &e4f, e4f_opts, e4f_opt_proc) == -1) {
+	if (fuse_opt_parse(&args, &fuse_lwext4_options,
+			   e4f_opts, e4f_opt_proc) == -1) {
 		return EXIT_FAILURE;
 	}
 
-	if (!e4f.disk) {
+	if (!fuse_lwext4_options.disk) {
 		fprintf(stderr, "Version: %s\n", FUSE_LWEXT4_VERSION);
 		fprintf(stderr, "Usage: %s <disk> <mountpoint>\n", argv[0]);
 		exit(1);
 	}
 
-	if (logging_open(e4f.logfile) < 0) {
+	if (logging_open(fuse_lwext4_options.logfile) < 0) {
 		fprintf(stderr, "Failed to initialize logging\n");
 		return EXIT_FAILURE;
 	}
 
 	fuse_opt_add_arg(&args, "-s");
-	if (e4f.debug == DEBUG_ALL)
+	if (fuse_lwext4_options.debug == DEBUG_ALL)
 		ext4_dmask_set(DEBUG_ALL);
 
-	if ((res = blockdev_get(e4f.disk, &bdev) != EOK)) {
+	if ((res = blockdev_get(fuse_lwext4_options.disk, &bdev) != EOK)) {
 		fprintf(stderr, "Failed to open the device\n");
 		return EXIT_FAILURE;
 	}
