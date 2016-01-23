@@ -68,7 +68,7 @@ struct fuse_lwext4_options fuse_lwext4_options;
 
 static struct fuse_opt e4f_opts[] = {
 	{ "logfile=%s", offsetof(struct fuse_lwext4_options, logfile), 0 },
-	{ "--debug", offsetof(struct fuse_lwext4_options, debug), DEBUG_ALL },
+	{ "debug", offsetof(struct fuse_lwext4_options, debug), 1 },
 	{ "journal", offsetof(struct fuse_lwext4_options, journal), 1 },
 	{ "cache", offsetof(struct fuse_lwext4_options, cache), 1 },
 	FUSE_OPT_END
@@ -149,8 +149,6 @@ int main(int argc, char *argv[])
 	}
 
 	fuse_opt_add_arg(&args, "-s");
-	if (fuse_lwext4_options.debug == DEBUG_ALL)
-		ext4_dmask_set(DEBUG_ALL);
 
 	if ((res = blockdev_get(fuse_lwext4_options.disk, &bdev) != EOK)) {
 		fprintf(stderr, "Failed to open the device\n");

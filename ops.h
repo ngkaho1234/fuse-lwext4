@@ -10,7 +10,7 @@
 struct fuse_lwext4_options {
 	char *disk;
 	char *logfile;
-	uint32_t debug;
+	int debug;
 	int journal;
 	int cache;
 };

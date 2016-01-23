@@ -37,6 +37,10 @@ void *op_init(struct fuse_conn_info *info)
 {
 	int rc;
 	struct ext4_blockdev *bdev = get_current_blockdev();
+
+	if (fuse_lwext4_options.debug)
+		ext4_dmask_set(DEBUG_ALL);
+
 	rc = ext4_device_register(bdev, NULL, "ext4_fs");
 	assert(rc == EOK);
 
