@@ -11,6 +11,8 @@ struct fuse_lwext4_options {
 	char *disk;
 	char *logfile;
 	uint32_t debug;
+	int journal;
+	int cache;
 };
 
 static inline struct ext4_blockdev *get_current_blockdev(void)

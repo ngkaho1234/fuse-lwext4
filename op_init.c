@@ -16,6 +16,7 @@
 
 static pthread_mutexattr_t mp_mutex_attr;
 static pthread_mutex_t mp_mutex;
+extern struct fuse_lwext4_options fuse_lwext4_options;
 
 static void mp_lock()
 {
@@ -48,5 +49,12 @@ void *op_init(struct fuse_conn_info *info)
 
 	ext4_mount_setup_locks("/", &mp_lock_func);
 	ext4_recover("/");
+
+	if (fuse_lwext4_options.journal)
+		assert(ext4_journal_start("/") == EOK);
+
+	if (fuse_lwext4_options.cache)
+		assert(ext4_cache_write_back("/", true) == EOK);
+
 	return bdev;
 }

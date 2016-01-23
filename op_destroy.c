@@ -13,10 +13,19 @@
 #include "logging.h"
 #include "ops.h"
 
+extern struct fuse_lwext4_options fuse_lwext4_options;
+
 void op_destroy(void *ctx)
 {
 	int rc;
 	struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
+
+	if (fuse_lwext4_options.journal)
+		assert(ext4_journal_stop("/") == EOK);
+
+	if (fuse_lwext4_options.cache)
+		assert(ext4_cache_write_back("/", false) == EOK);
+
 	rc = ext4_umount("/");
 	assert(rc == EOK);
 	blockdev_put(bdev);

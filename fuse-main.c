@@ -69,6 +69,8 @@ struct fuse_lwext4_options fuse_lwext4_options;
 static struct fuse_opt e4f_opts[] = {
 	{ "logfile=%s", offsetof(struct fuse_lwext4_options, logfile), 0 },
 	{ "--debug", offsetof(struct fuse_lwext4_options, debug), DEBUG_ALL },
+	{ "journal", offsetof(struct fuse_lwext4_options, journal), 1 },
+	{ "cache", offsetof(struct fuse_lwext4_options, cache), 1 },
 	FUSE_OPT_END
 };
 
