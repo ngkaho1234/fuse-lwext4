@@ -24,6 +24,7 @@
 #include "ops.h"
 #include "logging.h"
 #include "blockdev.h"
+#include "lwext4.h"
 
 #ifndef FUSE_LWEXT4_VERSION
 #define FUSE_LWEXT4_VERSION	"FUSE_LWEXT4-???"
@@ -150,7 +151,8 @@ int main(int argc, char *argv[])
 
 	fuse_opt_add_arg(&args, "-s");
 
-	if ((res = blockdev_get(fuse_lwext4_options.disk, &bdev) != EOK)) {
+	if ((res = blockdev_get(fuse_lwext4_options.disk, &bdev) !=
+			LWEXT4_ERRNO(EOK))) {
 		fprintf(stderr, "Failed to open the device\n");
 		return EXIT_FAILURE;
 	}

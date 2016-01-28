@@ -28,7 +28,6 @@
 
 #define _FILE_OFFSET_BITS 64
 
-#include "lwext4/lwext4/ext4.h"
 #include <errno.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -43,6 +42,8 @@
 #elif defined(__APPLE__) || defined(__FreeBSD__)
 #include <sys/disk.h>
 #endif
+
+#include "lwext4.h"
 
 /**@brief   Image block size.*/
 #define EXT4_BLOCKDEV_BSIZE 512
@@ -92,12 +93,12 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 	struct stat stat = { 0 };
 
 	if (dev_file < 0)
-		return EIO;
+		return LWEXT4_ERRNO(EIO);
 
 	bdev = ALLOC_BDEV();
 	if (!bdev) {
 		__blockdev_put(dev_file);
-		return ENOMEM;
+		return LWEXT4_ERRNO(ENOMEM);
 	}
 	bdev->fd = dev_file;
 	bdev->bdif.ph_bsize = EXT4_BLOCKDEV_BSIZE;
@@ -121,7 +122,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 	} else {
 		FREE_BDEV(bdev);
 		__blockdev_put(dev_file);
-		return EINVAL;
+		return LWEXT4_ERRNO(EINVAL);
 	}
 	bdev->bdif.ph_bcnt = block_cnt;
 	bdev->bdif.ph_bbuf = bdev->block_buf;
@@ -137,7 +138,7 @@ int blockdev_get(char *fname, struct ext4_blockdev **pbdev)
 
 	*pbdev = (struct ext4_blockdev *)bdev;
 
-	return EOK;
+	return LWEXT4_ERRNO(EOK);
 }
 
 void blockdev_put(struct ext4_blockdev *bdev)
@@ -148,7 +149,7 @@ void blockdev_put(struct ext4_blockdev *bdev)
 
 static int blockdev_open(struct ext4_blockdev *bdev)
 {
-	return EOK;
+	return LWEXT4_ERRNO(EOK);
 }
 
 /******************************************************************************/
@@ -160,10 +161,10 @@ static int blockdev_bread(struct ext4_blockdev *bdev, void *buf, uint64_t blk_id
 					buf,
 					bdev->bdif->ph_bsize * blk_cnt,
 					blk_id * bdev->bdif->ph_bsize);
-	if (ret != bdev->bdif->ph_bsize * blk_cnt)
-		return EIO;
+	if ((size_t)ret != bdev->bdif->ph_bsize * blk_cnt)
+		return LWEXT4_ERRNO(EIO);
 
-	return EOK;
+	return LWEXT4_ERRNO(EOK);
 }
 
 /******************************************************************************/
@@ -174,17 +175,17 @@ static int blockdev_bwrite(struct ext4_blockdev *bdev, const void *buf,
 					buf,
 					bdev->bdif->ph_bsize * blk_cnt,
 					blk_id * bdev->bdif->ph_bsize);
-	if (ret != bdev->bdif->ph_bsize * blk_cnt)
-		return EIO;
+	if ((size_t)ret != bdev->bdif->ph_bsize * blk_cnt)
+		return LWEXT4_ERRNO(EIO);
 
-	return EOK;
+	return LWEXT4_ERRNO(EOK);
 }
 /******************************************************************************/
 static int blockdev_close(struct ext4_blockdev *bdev)
 {
 	__blockdev_put(((struct block_dev *)bdev)->fd);
 	((struct block_dev *)bdev)->fd = 0;
-	return EOK;
+	return LWEXT4_ERRNO(EOK);
 }
 
 
