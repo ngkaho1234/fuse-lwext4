@@ -15,6 +15,7 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 /* Copied from http://web.mit.edu/~tcoffee/Public/rss/common/timespec.c */
 static void timespec_now(struct timespec *ts)
@@ -44,9 +45,9 @@ int op_utimens(const char *path, const struct timespec tv[2])
 		} else
 			atime = timespec_to_second(tv);
 
-		rc = ext4_file_set_atime(path, atime);
-		if (rc != EOK)
-			return -rc;
+		rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
+		if (rc)
+			return rc;
 
 	}
 	if (tv[1].tv_nsec != UTIME_OMIT) {
@@ -57,12 +58,12 @@ int op_utimens(const char *path, const struct timespec tv[2])
 		} else
 			mtime = timespec_to_second(tv);
 
-		rc = ext4_file_set_mtime(path, mtime);
-		if (rc != EOK)
-			return -rc;
+		rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
+		if (rc)
+			return rc;
 
 	}
-	return EOK;
+	return 0;
 
 }
 #endif
@@ -80,13 +81,14 @@ int op_utimes(const char *path, struct utimbuf *utimbuf)
 		mtime = utimbuf->modtime;
 	}
 	ctime = timespec_to_second(&ts);
-	rc = ext4_file_set_atime(path, atime);
-	if (rc != EOK)
-		return -rc;
-	rc = ext4_file_set_mtime(path, mtime);
-	if (rc != EOK)
-		return -rc;
+	rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
+	if (rc)
+		return rc;
 
-	rc = ext4_file_set_ctime(path, ctime);
-	return -rc;
+	rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
+	if (rc)
+		return rc;
+
+	rc = LWEXT4_CALL(ext4_file_set_ctime, path, ctime);
+	return rc;
 }

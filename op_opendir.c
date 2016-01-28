@@ -12,7 +12,7 @@
 
 #include "ops.h"
 #include "logging.h"
-
+#include "lwext4.h"
 
 int op_opendir(const char *path, struct fuse_file_info *fi)
 {
@@ -22,11 +22,11 @@ int op_opendir(const char *path, struct fuse_file_info *fi)
 	if (!d)
 		return -ENOMEM;
 
-	rc = ext4_dir_open(d, path);
-	if (rc != EOK) {
+	rc = LWEXT4_CALL(ext4_dir_open, d, path);
+	if (rc) {
 		free_ext4_dir(d);
 	} else {
 		set_fi_dir(fi, d);
 	}
-	return -rc;
+	return rc;
 }

@@ -15,26 +15,27 @@
 
 #include "ops.h"
 #include "logging.h"
+#include "lwext4.h"
 
 int op_mkdir(const char *path, mode_t mode)
 {
 	int rc;
 
-	rc = ext4_dir_mk(path);
-	if (rc != EOK)
-		return -rc;
+	rc = LWEXT4_CALL(ext4_dir_mk, path);
+	if (rc)
+		return rc;
 
-	rc = ext4_chmod(path, mode|EXT4_INODE_MODE_DIRECTORY);
-	if (rc != EOK) {
-		ext4_dir_rm(path);
-		return -rc;
+	rc = LWEXT4_CALL(ext4_chmod, path, mode);
+	if (rc) {
+		LWEXT4_CALL(ext4_dir_rm, path);
+		return rc;
 	}
-	rc = -op_utimes(path, NULL);
-	if (rc != EOK) {
-		ext4_dir_rm(path);
-		return -rc;
+	rc = op_utimes(path, NULL);
+	if (rc) {
+		LWEXT4_CALL(ext4_dir_rm, path);
+		return rc;
 	}
 
-	return -rc;
+	return rc;
 
 }

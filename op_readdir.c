@@ -12,7 +12,7 @@
 
 #include "ops.h"
 #include "logging.h"
-
+#include "lwext4.h"
 
 static char *get_printable_name(char *s, const ext4_direntry *entry)
 {
@@ -22,7 +22,7 @@ static char *get_printable_name(char *s, const ext4_direntry *entry)
 }
 
 int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
-					   off_t offset, struct fuse_file_info *fi)
+		off_t offset, struct fuse_file_info *fi)
 {
 	ext4_dir *d = NULL;
 	char name_buf[255];

@@ -15,12 +15,13 @@
 
 #include "ops.h"
 #include "logging.h"
+#include "lwext4.h"
 
 int op_rename(const char *path, const char *new_path)
 {
 	int rc;
 
-	rc = ext4_frename(path, new_path);
-	return -rc;
+	rc = LWEXT4_CALL(ext4_frename, path, new_path);
+	return rc;
 }
 

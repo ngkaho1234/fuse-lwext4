@@ -4,7 +4,6 @@
 #include <fuse.h>
 #include <stdlib.h>
 #include "blockdev.h"
-#include "lwext4/lwext4/ext4.h"
 
 /* fuse-lwext4 options. */
 struct fuse_lwext4_options {

@@ -13,25 +13,7 @@
 #include <errno.h>
 
 #include "ops.h"
-
-/*
- * flags open file flags
- *
- *  |---------------------------------------------------------------|
- *  |   r or rb				 O_RDONLY							|
- *  |---------------------------------------------------------------|
- *  |   w or wb				 O_WRONLY|O_CREAT|O_TRUNC			|
- *  |---------------------------------------------------------------|
- *  |   a or ab				 O_WRONLY|O_CREAT|O_APPEND		   |
- *  |---------------------------------------------------------------|
- *  |   r+ or rb+ or r+b		O_RDWR							  |
- *  |---------------------------------------------------------------|
- *  |   w+ or wb+ or w+b		O_RDWR|O_CREAT|O_TRUNC			  |
- *  |---------------------------------------------------------------|
- *  |   a+ or ab+ or a+b		O_RDWR|O_CREAT|O_APPEND			 |
- *  |---------------------------------------------------------------|
- *
- */
+#include "lwext4.h"
 
 int op_open(const char *path, struct fuse_file_info *fi)
 {
@@ -41,11 +23,11 @@ int op_open(const char *path, struct fuse_file_info *fi)
 	if (!f)
 		return -ENOMEM;
 
-	rc = ext4_fopen2(f, path, fi->flags);
-	if (rc != EOK) {
+	rc = LWEXT4_CALL(ext4_fopen2, f, path, fi->flags);
+	if (rc) {
 		free_ext4_file(f);
 	} else {
 		set_fi_file(fi, f);
 	}
-	return -rc;
+	return rc;
 }

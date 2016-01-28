@@ -13,8 +13,9 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 int op_symlink(const char *target, const char *path)
 {
-	return -ext4_fsymlink(target, path);
+	return LWEXT4_CALL(ext4_fsymlink, target, path);
 }

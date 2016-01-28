@@ -13,6 +13,7 @@
 
 #include "logging.h"
 #include "ops.h"
+#include "lwext4.h"
 
 int op_write(const char *path, const char *buf, size_t size, off_t offset,
 			struct fuse_file_info *fi)
@@ -21,9 +22,9 @@ int op_write(const char *path, const char *buf, size_t size, off_t offset,
 	size_t size_ret;
 	ext4_file *f = get_fi_file(fi);
 	ext4_fseek(f, offset, SEEK_SET);
-	rc = ext4_fwrite(f, buf, size, &size_ret);
-	if (rc != EOK)
-		return -rc;
+	rc = LWEXT4_CALL(ext4_fwrite, f, buf, size, &size_ret);
+	if (rc)
+		return rc;
 
 	return (int)size_ret;
 }

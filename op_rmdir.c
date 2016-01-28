@@ -21,5 +21,5 @@ int op_rmdir(const char *path)
 	int rc;
 
 	rc = ext4_dir_rm(path);
-	return -rc;
+	return rc;
 }

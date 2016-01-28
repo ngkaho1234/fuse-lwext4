@@ -13,13 +13,14 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 int op_releasedir(const char *path, struct fuse_file_info *fi)
 {
 	int rc;
 	ext4_dir *d = get_fi_dir(fi);
 
-	rc = ext4_dir_close(d);
+	rc = LWEXT4_CALL(ext4_dir_close, d);
 	free_ext4_dir(d);
-	return -rc;
+	return rc;
 }

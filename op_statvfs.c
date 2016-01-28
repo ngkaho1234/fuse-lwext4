@@ -13,14 +13,15 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 int op_statvfs(const char *path, struct statvfs *statvfs)
 {
 	int ret;
 	struct ext4_mount_stats mp_stats;
-	ret = ext4_mount_point_stats(path, &mp_stats);
-	if (ret != EOK)
-		return -ret;
+	ret = LWEXT4_CALL(ext4_mount_point_stats, path, &mp_stats);
+	if (ret)
+		return ret;
 
 	statvfs->f_bsize = mp_stats.block_size;
 	statvfs->f_blocks = mp_stats.blocks_count;

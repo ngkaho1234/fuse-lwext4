@@ -14,6 +14,7 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 #include "lwext4/lwext4/ext4_inode.h"
 #include "logging.h"
 
@@ -21,19 +22,18 @@ int op_getattr(const char *path, struct stat *stbuf)
 {
 	struct ext4_inode inode;
 	struct ext4_sblock *sb;
-	int r = 0;
+	int rc = 0;
 	uint32_t ino;
-	uint64_t size;
 
 	memset(stbuf, 0, sizeof(struct stat));
 
-	r = ext4_fill_raw_inode(path, &ino, &inode);
-	if (r != EOK)
-		return -r;
+	rc = LWEXT4_CALL(ext4_fill_raw_inode, path, &ino, &inode);
+	if (rc)
+		return rc;
 
-	r = ext4_get_sblock(path, &sb);
-	if (r != EOK)
-		return -r;
+	rc = LWEXT4_CALL(ext4_get_sblock, path, &sb);
+	if (rc)
+		return rc;
 
 	stbuf->st_mode = ext4_inode_get_mode(sb, &inode);
 	stbuf->st_nlink = ext4_inode_get_links_cnt(&inode);

@@ -13,8 +13,9 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 int op_link(const char *path, const char *hardlink_path)
 {
-	return -ext4_flink(path, hardlink_path);
+	return LWEXT4_CALL(ext4_flink, path, hardlink_path);
 }

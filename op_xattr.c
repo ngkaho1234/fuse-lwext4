@@ -19,12 +19,13 @@
 #include <errno.h>
 
 #include "ops.h"
+#include "lwext4.h"
 
 #if !defined(__FreeBSD__)
 int op_setxattr(const char *path, const char *name,
 			 const char *value, size_t size, int flags)
 {
-	return -ext4_setxattr(path, name, strlen(name),
+	return LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
 		  (void *)value, size,
 		  (flags & XATTR_REPLACE) ? true : false);
 }
@@ -32,7 +33,7 @@ int op_setxattr(const char *path, const char *name,
 int op_setxattr(const char *path, const char *name,
 			 const char *value, size_t size, int flags)
 {
-	return -ext4_setxattr(path, name, strlen(name),
+	return LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
 		  (void *)value, size,
 		  true);
 }
@@ -47,11 +48,9 @@ int op_getxattr(const char *path, const char *name,
 	if (position)
 		return -ENOSYS;
 
-	rc = ext4_getxattr(path, name, strlen(name),
+	rc = LWEXT4_CALL(ext4_getxattr, path, name, strlen(name),
 		  (void *)value, size, &data_size);
-	if (rc != EOK)
-		rc = -ret;
-	else
+	if (!rc)
 		rc = (int)data_size;
 
 	return rc;
@@ -63,11 +62,9 @@ int op_getxattr(const char *path, const char *name,
 	int rc = 0;
 	size_t data_size = 0;
 
-	rc = ext4_getxattr(path, name, strlen(name),
+	rc = LWEXT4_CALL(ext4_getxattr, path, name, strlen(name),
 		  (void *)value, size, &data_size);
-	if (rc != EOK)
-		rc = -rc;
-	else
+	if (!rc)
 		rc = (int)data_size;
 
 	return rc;
@@ -78,11 +75,9 @@ int op_listxattr(const char *path, char *list, size_t size)
 {
 	int rc = 0;
 	size_t ret_size = 0;
-	rc = ext4_listxattr(path, list, size,
+	rc = LWEXT4_CALL(ext4_listxattr, path, list, size,
 		   &ret_size);
-	if (rc != EOK)
-		rc = -rc;
-	else
+	if (!rc)
 		rc = (int)ret_size;
 
 	return rc;
@@ -90,5 +85,5 @@ int op_listxattr(const char *path, char *list, size_t size)
 
 int op_removexattr(const char *path, const char *name)
 {
-	return -ext4_removexattr(path, name, strlen(name));
+	return LWEXT4_CALL(ext4_removexattr, path, name, strlen(name));
 }

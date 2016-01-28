@@ -14,9 +14,10 @@
 
 #include "logging.h"
 #include "ops.h"
+#include "lwext4.h"
 
 int op_chmod(const char *path, mode_t mode)
 {
-	return -ext4_chmod(path, mode);
+	return LWEXT4_CALL(ext4_chmod, path, mode);
 }
 

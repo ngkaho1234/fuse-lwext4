@@ -15,12 +15,13 @@
 
 #include "ops.h"
 #include "logging.h"
+#include "lwext4.h"
 
 int op_unlink(const char *path)
 {
 	int rc;
 
-	rc = ext4_fremove(path);
-	return -rc;
+	rc = LWEXT4_CALL(ext4_fremove, path);
+	return rc;
 }
 

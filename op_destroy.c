@@ -12,6 +12,7 @@
 
 #include "logging.h"
 #include "ops.h"
+#include "lwext4.h"
 
 extern struct fuse_lwext4_options fuse_lwext4_options;
 
@@ -21,13 +22,13 @@ void op_destroy(void *ctx)
 	struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
 
 	if (fuse_lwext4_options.journal)
-		assert(ext4_journal_stop("/") == EOK);
+		assert(!LWEXT4_CALL(ext4_journal_stop, "/"));
 
 	if (fuse_lwext4_options.cache)
-		assert(ext4_cache_write_back("/", false) == EOK);
+		assert(!LWEXT4_CALL(ext4_cache_write_back, "/", false));
 
-	rc = ext4_umount("/");
-	assert(rc == EOK);
+	rc = LWEXT4_CALL(ext4_umount, "/");
+	assert(!rc);
 	blockdev_put(bdev);
 	return;
 }

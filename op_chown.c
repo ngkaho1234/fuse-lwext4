@@ -13,9 +13,10 @@
 
 #include "logging.h"
 #include "ops.h"
+#include "lwext4.h"
 
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
-	return -ext4_chown(path, uid, gid);
+	return LWEXT4_CALL(ext4_chown, path, uid, gid);
 }
 
