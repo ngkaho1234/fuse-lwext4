@@ -25,6 +25,15 @@ int op_mkdir(const char *path, mode_t mode)
 		return -rc;
 
 	rc = ext4_chmod(path, mode|EXT4_INODE_MODE_DIRECTORY);
+	if (rc != EOK) {
+		ext4_dir_rm(path);
+		return -rc;
+	}
+	rc = -op_utimes(path, NULL);
+	if (rc != EOK) {
+		ext4_dir_rm(path);
+		return -rc;
+	}
 
 	return -rc;
 

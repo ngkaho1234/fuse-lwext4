@@ -70,15 +70,16 @@ int op_utimens(const char *path, const struct timespec tv[2])
 int op_utimes(const char *path, struct utimbuf *utimbuf)
 {
 	int rc;
-	time_t atime, mtime;
+	time_t atime, mtime, ctime;
+	struct timespec ts;
+	timespec_now(&ts);
 	if (!utimbuf) {
-		struct timespec ts;
-		timespec_now(&ts);
 		atime = mtime = timespec_to_second(&ts);
 	} else {
 		atime = utimbuf->actime;
 		mtime = utimbuf->modtime;
 	}
+	ctime = timespec_to_second(&ts);
 	rc = ext4_file_set_atime(path, atime);
 	if (rc != EOK)
 		return -rc;
@@ -86,5 +87,6 @@ int op_utimes(const char *path, struct utimbuf *utimbuf)
 	if (rc != EOK)
 		return -rc;
 
+	rc = ext4_file_set_ctime(path, ctime);
 	return -rc;
 }

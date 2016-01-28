@@ -44,7 +44,14 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 		free_ext4_file(f);
 	} else {
 		set_fi_file(fi, f);
-		ext4_chmod(path, mode);
+		rc = ext4_chmod(path, mode);
+		if (rc != EOK)
+			return -rc;
+
+		rc = -op_utimes(path, NULL);
+		if (rc != EOK)
+			return -rc;
+
 	}
 
 	return -rc;
