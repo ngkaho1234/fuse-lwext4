@@ -5,7 +5,7 @@ BUILD_TYPE := Debug
 PROJECT_SETUP = "Unix Makefiles"
 
 LWEXT4_PATH = $(shell pwd)/lwext4
-LWEXT4_BUILD_PATH = $(LWEXT4_PATH)/build_generic
+LWEXT4_BUILD_PATH = $(LWEXT4_PATH)/build_lib_only
 
 ifeq ($(shell which pkg-config), )
 $(error You need to install pkg-config in order to compile this sources)
@@ -56,7 +56,7 @@ $(LWEXT4_BUILD_PATH):
 $(LIBLWEXT4_A): $(LWEXT4_PATH)/src/* $(LWEXT4_BUILD_PATH)
 	cd $(LWEXT4_BUILD_PATH) && \
 	cmake -G$(PROJECT_SETUP) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
-		-DCMAKE_TOOLCHAIN_FILE=$(LWEXT4_PATH)/toolchain/generic.cmake \
+		-DLIB_ONLY=TRUE  \
 		$(LWEXT4_PATH)
 	$(MAKE) -C $(LWEXT4_BUILD_PATH)
 
