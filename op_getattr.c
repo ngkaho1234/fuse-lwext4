@@ -15,7 +15,6 @@
 
 #include "ops.h"
 #include "lwext4.h"
-#include "lwext4/lwext4/ext4_inode.h"
 #include "logging.h"
 
 int op_getattr(const char *path, struct stat *stbuf)

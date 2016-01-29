@@ -20,7 +20,8 @@ int op_truncate (const char *path, off_t length)
 	if (!f)
 		return -ENOMEM;
 
-	rc = LWEXT4_CALL(ext4_fopen2, f, path, O_RDWR|O_APPEND);
+	rc = LWEXT4_CALL(ext4_fopen2, f, path,
+			 LWEXT4_FLAGS(O_RDWR)|LWEXT4_FLAGS(O_APPEND));
 	if (rc)
 		goto out;
 

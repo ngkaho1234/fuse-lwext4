@@ -21,7 +21,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 	if (!f)
 		return -ENOMEM;
 
-	rc = LWEXT4_CALL(ext4_fopen2, f, path, fi->flags | O_CREAT);
+	rc = LWEXT4_CALL(ext4_fopen2, f, path, fi->flags | LWEXT4_FLAGS(O_CREAT));
 	if (rc) {
 		free_ext4_file(f);
 	} else {

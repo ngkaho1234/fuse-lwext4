@@ -15,7 +15,6 @@ VERSION  = $(shell git describe --tags 2> /dev/null || basename `pwd`)
 
 CFLAGS  += $(shell pkg-config fuse --cflags) -DFUSE_USE_VERSION=26 -std=gnu99 -g3
 CFLAGS  += -DFUSE_LWEXT4_VERSION=\"$(VERSION)\"
-CFLAGS  += -I$(WEXT4_PATH)/lwext4
 LDFLAGS += $(shell pkg-config fuse --libs)
 
 ifeq ($(shell uname), Darwin)
@@ -41,15 +40,19 @@ SOURCES += op_init.o op_destroy.o \
 	   op_symlink.o op_readlink.o \
 	   op_statvfs.o op_xattr.o op_utimens.o
 
-LIBLWEXT4_A = $(LWEXT4_BUILD_PATH)/lwext4/liblwext4.a
+LIBLWEXT4_A = $(LWEXT4_BUILD_PATH)/src/liblwext4.a
+CFLAGS  += -I$(LWEXT4_BUILD_PATH)/include
 
-$(BINARY): $(SOURCES) $(LIBLWEXT4_A)
-	$(CC) -o $@ $^ $(LDFLAGS)
+$(BINARY): $(LIBLWEXT4_A) $(SOURCES)
+	$(CC) -o $@ $(SOURCES) $(LIBLWEXT4_A) $(LDFLAGS)
 
 $(LWEXT4_BUILD_PATH):
 	mkdir $@
 
-$(LIBLWEXT4_A): $(LWEXT4_PATH)/lwext4/* $(LWEXT4_BUILD_PATH)
+%.o: %.c
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(LIBLWEXT4_A): $(LWEXT4_PATH)/src/* $(LWEXT4_BUILD_PATH)
 	cd $(LWEXT4_BUILD_PATH) && \
 	cmake -G$(PROJECT_SETUP) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
 		-DCMAKE_TOOLCHAIN_FILE=$(LWEXT4_PATH)/toolchain/generic.cmake \
