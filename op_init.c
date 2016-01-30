@@ -45,7 +45,7 @@ void *op_init(struct fuse_conn_info *info)
 	rc = LWEXT4_CALL(ext4_device_register, bdev, NULL, "ext4_fs");
 	assert(!rc);
 
-	rc = LWEXT4_CALL(ext4_mount, "ext4_fs", "/");
+	rc = LWEXT4_CALL(ext4_mount, "ext4_fs", "/", false);
 	assert(!rc);
 
 	pthread_mutexattr_init(&mp_mutex_attr);
