@@ -38,7 +38,8 @@ SOURCES += op_init.o op_destroy.o \
 	   op_opendir.o op_readdir.o op_releasedir.o op_mkdir.o op_rmdir.o \
 	   op_unlink.o op_rename.o op_chmod.o op_chown.o op_link.o \
 	   op_symlink.o op_readlink.o \
-	   op_statvfs.o op_xattr.o op_utimens.o
+	   op_statvfs.o op_xattr.o op_utimens.o \
+	   acl.o
 
 LIBLWEXT4_A = $(LWEXT4_BUILD_PATH)/src/liblwext4.a
 CFLAGS  += -I$(LWEXT4_BUILD_PATH)/include

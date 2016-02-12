@@ -20,14 +20,33 @@
 
 #include "ops.h"
 #include "lwext4.h"
+#include "acl.h"
 
 #if !defined(__FreeBSD__)
 int op_setxattr(const char *path, const char *name,
 			 const char *value, size_t size, int flags)
 {
-	return LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-		  (void *)value, size,
-		  (flags & XATTR_REPLACE) ? true : false);
+	int rc = 0;
+	int is_posix_acl = strcmp(name, ACL_EA_ACCESS) ||
+			   strcmp(name, ACL_EA_DEFAULT);
+	if (!is_posix_acl)
+		rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
+				(void *)value, size,
+				(flags & XATTR_REPLACE) ? true : false);
+	else {
+		size_t sz;
+		void *tmp = NULL;
+		rc = fuse_to_ext4_acl(value, size,
+				&tmp, &sz);
+		if (!rc)
+			rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
+					(void *)tmp, sz,
+					(flags & XATTR_REPLACE) ? true : false);
+
+		if (tmp)
+			free(tmp);
+	}
+	return rc;
 }
 #else
 int op_setxattr(const char *path, const char *name,
@@ -45,13 +64,35 @@ int op_getxattr(const char *path, const char *name,
 {
 	int rc = 0;
 	size_t data_size = 0;
+	int is_posix_acl = strcmp(name, ACL_EA_ACCESS) ||
+			   strcmp(name, ACL_EA_DEFAULT);
 	if (position)
 		return -ENOSYS;
 
 	rc = LWEXT4_CALL(ext4_getxattr, path, name, strlen(name),
 		  (void *)value, size, &data_size);
-	if (!rc)
-		rc = (int)data_size;
+	if (!rc) {
+		if (!is_posix_acl)
+			rc = (int)data_size;
+		else {
+			size_t sz;
+			void *tmp = NULL;
+			rc = fuse_to_ext4_acl(&tmp, &sz,
+					value, data_size);
+
+			if (!rc) {
+				if (sz > size)
+					rc = -EINVAL;
+				else {
+					memcpy(value, tmp, sz);
+					rc = (int)sz;
+				}
+			}
+
+			if (tmp)
+				free(tmp);
+		}
+	}
 
 	return rc;
 }
