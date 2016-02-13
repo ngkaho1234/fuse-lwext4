@@ -45,9 +45,9 @@ typedef struct {
 } ext4_acl_header;
 
 
-int fuse_to_ext4_acl(acl_ea_header *facl, size_t facl_sz,
-			    ext4_acl_header **eacl, size_t *eacl_sz);
+int fuse_to_ext4_acl(const acl_ea_header *facl, size_t facl_sz,
+		     ext4_acl_header **eacl, size_t *eacl_sz);
 int ext4_to_fuse_acl(acl_ea_header **facl, size_t *facl_sz,
-			    ext4_acl_header *eacl, size_t eacl_sz);
+		     const ext4_acl_header *eacl, size_t eacl_sz);
 
 #endif

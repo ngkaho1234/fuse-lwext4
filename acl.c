@@ -53,7 +53,7 @@ static uint32_t ext2fs_cpu_to_le32(uint32_t v) { return v; }
 static uint16_t ext2fs_le16_to_cpu(uint16_t v) { return v; }
 static uint32_t ext2fs_le32_to_cpu(uint32_t v) { return v; }
 
-int fuse_to_ext4_acl(acl_ea_header *facl, size_t facl_sz,
+int fuse_to_ext4_acl(const acl_ea_header *facl, size_t facl_sz,
 			    ext4_acl_header **eacl, size_t *eacl_sz)
 {
 	int i, facl_count;
@@ -107,7 +107,7 @@ out:
 }
 
 int ext4_to_fuse_acl(acl_ea_header **facl, size_t *facl_sz,
-			    ext4_acl_header *eacl, size_t eacl_sz)
+		     const ext4_acl_header *eacl, size_t eacl_sz)
 {
 	int i, eacl_count;
 	acl_ea_header *f;

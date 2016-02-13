@@ -62,14 +62,14 @@ static inline void free_ext4_dir(ext4_dir *d)
 void *op_init(struct fuse_conn_info *info);
 void op_destroy(void *);
 int op_readlink(const char *path, char *buf, size_t bufsize);
-int op_read(const char *path, char *buf, size_t size, off_t offset
-							 , struct fuse_file_info *fi);
-int op_write(const char *path, const char *buf, size_t size, off_t offset
-							 , struct fuse_file_info *fi);
+int op_read(const char *path, char *buf, size_t size, off_t offset,
+	    struct fuse_file_info *fi);
+int op_write(const char *path, const char *buf, size_t size, off_t offset,
+		struct fuse_file_info *fi);
 int op_truncate (const char *path, off_t length);
 int op_ftruncate (const char *path, off_t length, struct fuse_file_info *fi);
-int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler
-							   , off_t offset, struct fuse_file_info *fi);
+int op_readdir(const char *path, void *buf, fuse_fill_dir_t filler, off_t offset,
+		struct fuse_file_info *fi);
 int op_getattr(const char *path, struct stat *stbuf);
 int op_open(const char *path, struct fuse_file_info *fi);
 int op_create(const char *path, mode_t mode, struct fuse_file_info *fi);
@@ -94,13 +94,14 @@ int op_chown(const char *path, uid_t uid, gid_t gid);
 int op_statvfs(const char *path, struct statvfs *statvfs);
 
 int op_setxattr(const char *path, const char *name,
-			 const char *value, size_t size, int flags);
+		const char *value, size_t size, int flags);
+
 #if defined(__APPLE__)
 int op_getxattr(const char *path, const char *name,
-			 char *value, size_t size, uint32_t position);
+		char *value, size_t size, uint32_t position);
 #else
 int op_getxattr(const char *path, const char *name,
-			 char *value, size_t size);
+		char *value, size_t size);
 #endif
 
 int op_listxattr(const char *path, char *list, size_t size);
