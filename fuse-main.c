@@ -149,8 +149,6 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	fuse_opt_add_arg(&args, "-s");
-
 	if ((res = blockdev_get(fuse_lwext4_options.disk, &bdev) !=
 			LWEXT4_ERRNO(EOK))) {
 		fprintf(stderr, "Failed to open the device\n");
