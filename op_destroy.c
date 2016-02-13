@@ -21,6 +21,9 @@ void op_destroy(void *ctx)
 	int rc;
 	struct ext4_blockdev *bdev = (struct ext4_blockdev *)ctx;
 
+	if (!bdev)
+		return;
+
 	if (fuse_lwext4_options.journal)
 		assert(!LWEXT4_CALL(ext4_journal_stop, "/"));
 
@@ -28,7 +31,10 @@ void op_destroy(void *ctx)
 		assert(!LWEXT4_CALL(ext4_cache_write_back, "/", false));
 
 	rc = LWEXT4_CALL(ext4_umount, "/");
-	assert(!rc);
+	if (rc != LWEXT4_ERRNO(EOK)) {
+		routine_failed("ext4_umount", rc);
+		return;
+	}
 	blockdev_put(bdev);
 	return;
 }

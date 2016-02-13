@@ -40,4 +40,9 @@ void __LOG(int level, const char *func, int line, const char *format, ...);
 void logging_setlevel(int new_level);
 int logging_open(const char *path);
 
+static inline void routine_failed(char *func_name, int rc)
+{
+	ERR("%s failed with rc = %d !\n", func_name, rc);
+}
+
 #endif
