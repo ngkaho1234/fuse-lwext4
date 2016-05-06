@@ -2,10 +2,10 @@ fuse-lwext4
 ======
 This is a implementation of EXT4 on FUSE.
 
-##Installation
+##Installation:
 ```bash
-$ make
-# make install
+make
+make install
 ```
 
 ##NOTES:
@@ -25,3 +25,14 @@ Grzegorz Kostka, kostka.grzegorz@gmail.com (The author of lwext4)
     since there might be software conflicts and I could only test it
     on some of the popular platforms. You should use it with care and
     use it at your own risk!
+
+##Usage:
+```bash
+fuse-lwext4 <disk> <mountpoint> [-f] [-o <options>]
+```
+Reminder:  
+If you want to specify more than one option, you should separate them with commas.
+
+#Options:
+journal - Journalling support will be enabled if it is supported by the filesystem  
+debug   - Print out debug messages
