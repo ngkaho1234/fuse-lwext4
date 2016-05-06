@@ -48,16 +48,16 @@ $(BINARY): $(LIBLWEXT4_A) $(SOURCES)
 	$(CC) -o $@ $(SOURCES) $(LIBLWEXT4_A) $(LDFLAGS)
 
 $(LWEXT4_BUILD_PATH):
-	mkdir $@
-
-%.o: %.c
-	$(CC) -c -o $@ $< $(CFLAGS)
-
-$(LIBLWEXT4_A): $(LWEXT4_PATH)/src/* $(LWEXT4_PATH)/include/* $(LWEXT4_BUILD_PATH)
+	mkdir -p $@
 	cd $(LWEXT4_BUILD_PATH) && \
 	cmake -G$(PROJECT_SETUP) -DCMAKE_BUILD_TYPE=$(BUILD_TYPE) \
 		-DCMAKE_TOOLCHAIN_FILE=$(LWEXT4_PATH)/toolchain/generic.cmake \
 		$(LWEXT4_PATH)
+
+%.o: %.c $(LWEXT4_BUILD_PATH)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(LIBLWEXT4_A): $(LWEXT4_PATH)/src/* $(LWEXT4_PATH)/include/* $(LWEXT4_BUILD_PATH)
 	$(MAKE) -C $(LWEXT4_BUILD_PATH)
 
 install: $(BINARY)
