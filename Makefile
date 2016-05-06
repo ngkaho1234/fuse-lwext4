@@ -63,15 +63,6 @@ $(LIBLWEXT4_A): $(LWEXT4_PATH)/src/* $(LWEXT4_BUILD_PATH)
 install: $(BINARY)
 	install $(BINARY) $(PREFIX)/bin
 
-test-slow: $(BINARY)
-	@for T in test/[0-9]*; do ./$$T; done
-
-test: $(BINARY)
-	@for T in test/[0-9][0-9][0-9][0-9]-*; do SKIP_SLOW_TESTS=1 ./$$T; done
-
 clean:
 	rm -f *.o $(BINARY)
-	rm -rf test/logs
 	$(MAKE) -C $(LWEXT4_PATH) clean
-
-.PHONY: test
