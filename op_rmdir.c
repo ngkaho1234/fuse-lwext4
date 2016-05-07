@@ -11,6 +11,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <libgen.h>
 #include <errno.h>
 
 #include "ops.h"
@@ -20,6 +21,11 @@ int op_rmdir(const char *path)
 {
 	int rc;
 
-	rc = ext4_dir_rm(path);
+	rc = LWEXT4_CALL(ext4_dir_rm, path);
+	if (!rc)
+		rc = update_ctime(dirname(path));
+	if (!rc)
+		update_mtime(dirname(path));
+
 	return rc;
 }

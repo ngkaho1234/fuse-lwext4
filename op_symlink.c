@@ -10,6 +10,7 @@
 
 #include <unistd.h>
 #include <fcntl.h>
+#include <libgen.h>
 #include <errno.h>
 
 #include "ops.h"
@@ -17,5 +18,9 @@
 
 int op_symlink(const char *target, const char *path)
 {
-	return LWEXT4_CALL(ext4_fsymlink, target, path);
+	int rc = LWEXT4_CALL(ext4_fsymlink, target, path);
+	if (!rc)
+		update_mtime(dirname(path));
+
+	return rc;
 }

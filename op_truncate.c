@@ -26,6 +26,9 @@ int op_truncate (const char *path, off_t length)
 		goto out;
 
 	rc = LWEXT4_CALL(ext4_ftruncate, f, length);
+	if (!rc)
+		update_mtime(path);
+
 out:
 	ext4_fclose(f);
 	free_ext4_file(f);
@@ -38,6 +41,9 @@ int op_ftruncate (const char *path, off_t length, struct fuse_file_info *fi)
 	int rc;
 	ext4_file *f = get_fi_file(fi);
 	rc = LWEXT4_CALL(ext4_ftruncate, f, length);
+	if (!rc)
+		update_mtime(path);
+
 	return rc;
 
 }

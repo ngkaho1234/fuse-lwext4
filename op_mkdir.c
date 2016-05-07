@@ -35,7 +35,7 @@ int op_mkdir(const char *path, mode_t mode)
 		LWEXT4_CALL(ext4_dir_rm, path);
 		return rc;
 	}
-
+	update_mtime(path);
 	return rc;
 
 }

@@ -17,6 +17,10 @@
 
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
-	return LWEXT4_CALL(ext4_chown, path, uid, gid);
+	int rc = LWEXT4_CALL(ext4_chown, path, uid, gid);
+	if (!rc)
+		rc = update_ctime(path);
+
+	return rc;
 }
 

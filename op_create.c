@@ -7,6 +7,7 @@
  * more details.
  */
 #include <unistd.h>
+#include <libgen.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -34,6 +35,7 @@ int op_create(const char *path, mode_t mode, struct fuse_file_info *fi)
 		if (rc)
 			return rc;
 
+		update_mtime(dirname(path));
 	}
 
 	return rc;

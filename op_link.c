@@ -9,6 +9,7 @@
 
 
 #include <unistd.h>
+#include <libgen.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -17,5 +18,9 @@
 
 int op_link(const char *path, const char *hardlink_path)
 {
-	return LWEXT4_CALL(ext4_flink, path, hardlink_path);
+	int rc = LWEXT4_CALL(ext4_flink, path, hardlink_path);
+	if (!rc)
+		update_mtime(dirname(hardlink_path));
+
+	return rc;
 }

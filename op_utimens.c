@@ -35,7 +35,7 @@ static uint32_t timespec_to_second(const struct timespec *ts)
 #if !defined(__FreeBSD__)
 int op_utimens(const char *path, const struct timespec tv[2])
 {
-	int rc;
+	int rc = 0;
 	uint32_t atime, mtime;
 	if (tv[0].tv_nsec != UTIME_OMIT) {
 		if (tv[0].tv_nsec == UTIME_NOW) {
@@ -63,7 +63,10 @@ int op_utimens(const char *path, const struct timespec tv[2])
 			return rc;
 
 	}
-	return 0;
+	if (!rc)
+		rc = update_ctime(path);
+
+	return rc;
 
 }
 #endif
@@ -71,7 +74,7 @@ int op_utimens(const char *path, const struct timespec tv[2])
 int op_utimes(const char *path, struct utimbuf *utimbuf)
 {
 	int rc;
-	time_t atime, mtime, ctime;
+	time_t atime, mtime;
 	struct timespec ts;
 	timespec_now(&ts);
 	if (!utimbuf) {
@@ -80,7 +83,6 @@ int op_utimes(const char *path, struct utimbuf *utimbuf)
 		atime = utimbuf->actime;
 		mtime = utimbuf->modtime;
 	}
-	ctime = timespec_to_second(&ts);
 	rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
 	if (rc)
 		return rc;
@@ -89,6 +91,39 @@ int op_utimes(const char *path, struct utimbuf *utimbuf)
 	if (rc)
 		return rc;
 
+	rc = update_ctime(path);
+	return rc;
+}
+
+int update_ctime(const char *path)
+{
+	int rc;
+	uint32_t ctime;
+	struct timespec ts;
+	timespec_now(&ts);
+	ctime = timespec_to_second(&ts);
 	rc = LWEXT4_CALL(ext4_file_set_ctime, path, ctime);
+	return rc;
+}
+
+int update_atime(const char *path)
+{
+	int rc;
+	uint32_t atime;
+	struct timespec ts;
+	timespec_now(&ts);
+	atime = timespec_to_second(&ts);
+	rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
+	return rc;
+}
+
+int update_mtime(const char *path)
+{
+	int rc;
+	uint32_t mtime;
+	struct timespec ts;
+	timespec_now(&ts);
+	mtime = timespec_to_second(&ts);
+	rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
 	return rc;
 }

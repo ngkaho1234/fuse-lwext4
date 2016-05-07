@@ -56,6 +56,9 @@ int op_setxattr(const char *path, const char *name,
 		if (tmp)
 			free(tmp);
 	}
+	if (!rc)
+		rc = update_ctime(path);
+
 	return rc;
 }
 

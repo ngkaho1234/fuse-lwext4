@@ -10,6 +10,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <libgen.h>
 #include <string.h>
 #include <errno.h>
 
@@ -22,6 +23,11 @@ int op_rename(const char *path, const char *new_path)
 	int rc;
 
 	rc = LWEXT4_CALL(ext4_frename, path, new_path);
+	if (!rc)
+		rc = update_ctime(path);
+	if (!rc)
+		update_mtime(dirname(new_path));
+
 	return rc;
 }
 

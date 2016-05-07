@@ -115,4 +115,8 @@ int op_utimens(const char *path, const struct timespec tv[2]);
 
 int op_utimes(const char *path, struct utimbuf *utimbuf);
 
+int update_ctime(const char *path);
+int update_atime(const char *path);
+int update_mtime(const char *path);
+
 #endif

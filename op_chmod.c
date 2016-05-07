@@ -18,6 +18,10 @@
 
 int op_chmod(const char *path, mode_t mode)
 {
-	return LWEXT4_CALL(ext4_chmod, path, mode);
+	int rc = LWEXT4_CALL(ext4_chmod, path, mode);
+	if (!rc)
+		rc = update_ctime(path);
+
+	return rc;
 }
 
