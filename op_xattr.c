@@ -26,8 +26,8 @@ int op_setxattr(const char *path, const char *name,
 		const char *value, size_t size, int flags)
 {
 	int rc = 0;
-	int is_posix_acl = strcmp(name, ACL_EA_ACCESS) ||
-			   strcmp(name, ACL_EA_DEFAULT);
+	int is_posix_acl = !strcmp(name, ACL_EA_ACCESS) ||
+			   !strcmp(name, ACL_EA_DEFAULT);
 	if (!is_posix_acl)
 #if !defined(__FreeBSD__)
 		rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
@@ -69,8 +69,8 @@ int op_getxattr(const char *path, const char *name,
 {
 	int rc = 0;
 	size_t data_size = 0;
-	int is_posix_acl = strcmp(name, ACL_EA_ACCESS) ||
-			   strcmp(name, ACL_EA_DEFAULT);
+	int is_posix_acl = !strcmp(name, ACL_EA_ACCESS) ||
+			   !strcmp(name, ACL_EA_DEFAULT);
 #if defined(__APPLE__)
 	if (position)
 		return -ENOSYS;
