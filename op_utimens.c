@@ -37,18 +37,21 @@ int op_utimens(const char *path, const struct timespec tv[2])
 {
 	int rc;
 	uint32_t atime, mtime;
+#if defined(UTIME_OMIT) && defined(UTIME_NOW)
 	if (tv[0].tv_nsec != UTIME_OMIT) {
 		if (tv[0].tv_nsec == UTIME_NOW) {
 			struct timespec ts;
 			timespec_now(&ts);
 			atime = timespec_to_second(&ts);
 		} else
+#endif /* defined(UTIME_OMIT) && defined(UTIME_NOW) */
 			atime = timespec_to_second(tv);
 
 		rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
 		if (rc)
 			return rc;
 
+#if defined(UTIME_OMIT) && defined(UTIME_NOW)
 	}
 	if (tv[1].tv_nsec != UTIME_OMIT) {
 		if (tv[1].tv_nsec == UTIME_NOW) {
@@ -56,13 +59,16 @@ int op_utimens(const char *path, const struct timespec tv[2])
 			timespec_now(&ts);
 			mtime = timespec_to_second(&ts);
 		} else
+#endif /* defined(UTIME_OMIT) && defined(UTIME_NOW) */
 			mtime = timespec_to_second(tv);
 
 		rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
 		if (rc)
 			return rc;
 
+#if defined(UTIME_OMIT) && defined(UTIME_NOW)
 	}
+#endif /* defined(UTIME_OMIT) && defined(UTIME_NOW) */
 	return 0;
 
 }

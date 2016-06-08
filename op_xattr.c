@@ -26,6 +26,7 @@ int op_setxattr(const char *path, const char *name,
 		const char *value, size_t size, int flags)
 {
 	int rc = 0;
+#if !defined(__APPLE__)
 	int is_posix_acl = !strcmp(name, ACL_EA_ACCESS) ||
 			   !strcmp(name, ACL_EA_DEFAULT);
 	if (!is_posix_acl)
@@ -56,6 +57,11 @@ int op_setxattr(const char *path, const char *name,
 		if (tmp)
 			free(tmp);
 	}
+#else /* __APPLE__ */
+	rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
+			 (void *)value, size,
+			 true);
+#endif /* __APPLE__ */
 	return rc;
 }
 
@@ -69,16 +75,18 @@ int op_getxattr(const char *path, const char *name,
 {
 	int rc = 0;
 	size_t data_size = 0;
+#if defined(__APPLE__)
 	int is_posix_acl = !strcmp(name, ACL_EA_ACCESS) ||
 			   !strcmp(name, ACL_EA_DEFAULT);
-#if defined(__APPLE__)
+#else /* __APPLE__ */
 	if (position)
 		return -ENOSYS;
-#endif
+#endif /* __APPLE__ */
 
 	rc = LWEXT4_CALL(ext4_getxattr, path, name, strlen(name),
 		  (void *)value, size, &data_size);
 	if (!rc) {
+#if !defined(__APPLE__)
 		if (!is_posix_acl)
 			rc = (int)data_size;
 		else {
@@ -99,6 +107,9 @@ int op_getxattr(const char *path, const char *name,
 			if (tmp)
 				free(tmp);
 		}
+#else /* __APPLE__ */
+		rc = (int)data_size;
+#endif /* __APPLE__ */
 	}
 
 	return rc;

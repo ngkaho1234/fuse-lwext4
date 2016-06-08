@@ -1,3 +1,6 @@
+/* We do not support ACL on Darwin. */
+#ifndef __APPLE__
+
 #include "acl.h"
 
 #include <errno.h>
@@ -159,3 +162,5 @@ out:
 	free(f);
 	return err;
 }
+
+#endif /* __APPLE__ */
