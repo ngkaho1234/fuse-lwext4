@@ -43,13 +43,13 @@ void *op_init(struct fuse_conn_info *info)
 		ext4_dmask_set(DEBUG_ALL);
 
 	rc = LWEXT4_CALL(ext4_device_register, bdev, NULL, "ext4_fs");
-	if (rc != LWEXT4_ERRNO(EOK)) {
+	if (rc) {
 		routine_failed("ext4_device_register", rc);
 		return NULL;
 	}
 
 	rc = LWEXT4_CALL(ext4_mount, "ext4_fs", "/", false);
-	if (rc != LWEXT4_ERRNO(EOK)) {
+	if (rc) {
 		routine_failed("ext4_mount", rc);
 		return NULL;
 	}
@@ -60,7 +60,7 @@ void *op_init(struct fuse_conn_info *info)
 
 	LWEXT4_CALL(ext4_mount_setup_locks, "/", &mp_lock_func);
 	rc = LWEXT4_CALL(ext4_recover, "/");
-	if (rc != LWEXT4_ERRNO(EOK)) {
+	if (rc && rc != -ENOTSUP) {
 		routine_failed("ext4_recover", rc);
 		EMERG("In concern for consistency, please run e2fsck against the filesystem.");
 		return NULL;

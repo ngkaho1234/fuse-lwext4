@@ -31,7 +31,7 @@ void op_destroy(void *ctx)
 		assert(!LWEXT4_CALL(ext4_cache_write_back, "/", false));
 
 	rc = LWEXT4_CALL(ext4_umount, "/");
-	if (rc != LWEXT4_ERRNO(EOK)) {
+	if (rc) {
 		routine_failed("ext4_umount", rc);
 		return;
 	}
