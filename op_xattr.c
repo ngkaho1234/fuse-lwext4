@@ -75,7 +75,7 @@ int op_getxattr(const char *path, const char *name,
 {
 	int rc = 0;
 	size_t data_size = 0;
-#if defined(__APPLE__)
+#if !defined(__APPLE__)
 	int is_posix_acl = !strcmp(name, ACL_EA_ACCESS) ||
 			   !strcmp(name, ACL_EA_DEFAULT);
 #else /* __APPLE__ */
