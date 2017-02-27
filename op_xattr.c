@@ -32,12 +32,10 @@ int op_setxattr(const char *path, const char *name,
 	if (!is_posix_acl)
 #if !defined(__FreeBSD__)
 		rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-				(void *)value, size,
-				(flags & XATTR_REPLACE) ? true : false);
+				(void *)value, size);
 #else
 		rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-				 (void *)value, size,
-				 true);
+				 (void *)value, size);
 #endif
 	else {
 		size_t sz;
@@ -47,20 +45,17 @@ int op_setxattr(const char *path, const char *name,
 		if (!rc)
 #if !defined(__FreeBSD__)
 			rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-					(void *)tmp, sz,
-					(flags & XATTR_REPLACE) ? true : false);
+					(void *)tmp, sz);
 #else
 		rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-				 (void *)value, size,
-				 true);
+				 (void *)value, size);
 #endif
 		if (tmp)
 			free(tmp);
 	}
 #else /* __APPLE__ */
 	rc = LWEXT4_CALL(ext4_setxattr, path, name, strlen(name),
-			 (void *)value, size,
-			 true);
+			 (void *)value, size);
 #endif /* __APPLE__ */
 	return rc;
 }

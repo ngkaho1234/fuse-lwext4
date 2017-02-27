@@ -25,7 +25,7 @@ int op_mkdir(const char *path, mode_t mode)
 	if (rc)
 		return rc;
 
-	rc = LWEXT4_CALL(ext4_chmod, path, mode);
+	rc = LWEXT4_CALL(ext4_mode_set, path, mode);
 	if (rc) {
 		LWEXT4_CALL(ext4_dir_rm, path);
 		return rc;

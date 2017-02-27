@@ -42,7 +42,7 @@ void *op_init(struct fuse_conn_info *info)
 	if (fuse_lwext4_options.debug)
 		ext4_dmask_set(DEBUG_ALL);
 
-	rc = LWEXT4_CALL(ext4_device_register, bdev, NULL, "ext4_fs");
+	rc = LWEXT4_CALL(ext4_device_register, bdev, "ext4_fs");
 	if (rc) {
 		routine_failed("ext4_device_register", rc);
 		return NULL;

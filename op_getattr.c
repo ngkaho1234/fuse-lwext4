@@ -26,7 +26,7 @@ int op_getattr(const char *path, struct stat *stbuf)
 
 	memset(stbuf, 0, sizeof(struct stat));
 
-	rc = LWEXT4_CALL(ext4_fill_raw_inode, path, &ino, &inode);
+	rc = LWEXT4_CALL(ext4_raw_inode_fill, path, &ino, &inode);
 	if (rc)
 		return rc;
 

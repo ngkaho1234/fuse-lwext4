@@ -47,7 +47,7 @@ int op_utimens(const char *path, const struct timespec tv[2])
 #endif /* defined(UTIME_OMIT) && defined(UTIME_NOW) */
 			atime = timespec_to_second(tv);
 
-		rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
+		rc = LWEXT4_CALL(ext4_atime_set, path, atime);
 		if (rc)
 			return rc;
 
@@ -62,7 +62,7 @@ int op_utimens(const char *path, const struct timespec tv[2])
 #endif /* defined(UTIME_OMIT) && defined(UTIME_NOW) */
 			mtime = timespec_to_second(tv);
 
-		rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
+		rc = LWEXT4_CALL(ext4_mtime_set, path, mtime);
 		if (rc)
 			return rc;
 
@@ -87,14 +87,14 @@ int op_utimes(const char *path, struct utimbuf *utimbuf)
 		mtime = utimbuf->modtime;
 	}
 	ctime = timespec_to_second(&ts);
-	rc = LWEXT4_CALL(ext4_file_set_atime, path, atime);
+	rc = LWEXT4_CALL(ext4_atime_set, path, atime);
 	if (rc)
 		return rc;
 
-	rc = LWEXT4_CALL(ext4_file_set_mtime, path, mtime);
+	rc = LWEXT4_CALL(ext4_mtime_set, path, mtime);
 	if (rc)
 		return rc;
 
-	rc = LWEXT4_CALL(ext4_file_set_ctime, path, ctime);
+	rc = LWEXT4_CALL(ext4_ctime_set, path, ctime);
 	return rc;
 }

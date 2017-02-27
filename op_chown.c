@@ -17,6 +17,6 @@
 
 int op_chown(const char *path, uid_t uid, gid_t gid)
 {
-	return LWEXT4_CALL(ext4_chown, path, uid, gid);
+	return LWEXT4_CALL(ext4_owner_set, path, uid, gid);
 }
 
